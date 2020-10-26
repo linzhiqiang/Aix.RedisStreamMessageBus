@@ -37,14 +37,24 @@ namespace Aix.RedisStreamMessageBus
         /// </summary>
         public ISerializer Serializer { get; set; }
 
+        /// <summary>
+        /// stream大小 默认一百万
+        /// </summary>
         public int StreamMaxLength { get; set; } = 1000000;
 
         public string DefaultConsumerName { get; set; } = "consumer";
+
+        public ConsumerNameType ConsumerNameType { get; set; } = ConsumerNameType.LocalIPPostfix;
 
         /// <summary>
         /// 默认每个类型的消费线程数 默认2个
         /// </summary>
         public int DefaultConsumerThreadCount { get; set; } = 2;
+
+        /// <summary>
+        /// 每次拉去多少条
+        /// </summary>
+        public int PerBatchPullCount { get; set; } = 10;
 
         /// <summary>
         /// 消费者没数据时 间隔时间(没数据时) 100
@@ -73,11 +83,6 @@ namespace Aix.RedisStreamMessageBus
         public int MaxErrorReTryCount { get; set; } = 10;
 
         /// <summary>
-        /// 是否为重试异常
-        /// </summary>
-        public static Func<Exception, Task<bool>> IsRetry { get; set; }
-
-        /// <summary>
         /// 失败重试延迟策略 单位：秒 ,不要直接调用请调用GetRetryStrategy()  默认失败次数对应值延迟时间[ 1, 10, 30, 60, 2 * 60, 2 * 60, 2 * 60, 5 * 60, 5 * 60,10*60   ];
         /// </summary>
         public int[] RetryStrategy { get; set; }
@@ -87,6 +92,28 @@ namespace Aix.RedisStreamMessageBus
             if (RetryStrategy == null || RetryStrategy.Length == 0) return DefaultRetryStrategy;
             return RetryStrategy;
         }
+
+        /// <summary>
+        /// 是否为重试异常
+        /// </summary>
+        public static Func<Exception, Task<bool>> IsRetry { get; set; }
+
+       
+
+    }
+
+    public enum ConsumerNameType
+    {
+        /// <summary>
+        /// 本机ip作为后缀 分布式部署时采用 也是默认值
+        /// </summary>
+        LocalIPPostfix = 1,
+
+        /// <summary>
+        /// 常量 单机部署时采用
+        /// </summary>
+        Constant = 2
+
 
     }
 }

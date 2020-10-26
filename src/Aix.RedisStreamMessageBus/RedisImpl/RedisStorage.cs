@@ -124,7 +124,7 @@ namespace Aix.RedisStreamMessageBus.RedisImpl
             return Task.FromResult(dict);
         }
 
-       
+
 
         /// <summary>
         /// 到期的延迟任务 插入及时任务
@@ -142,6 +142,23 @@ namespace Aix.RedisStreamMessageBus.RedisImpl
             trans.KeyDeleteAsync(Helper.GetJobHashId(_options, jobId));
 #pragma warning restore CS4014
             var result = await trans.ExecuteAsync();
+            return result;
+        }
+
+        /// <summary>
+        /// 删除数据为空的 延迟任务数据  一般不会有这种情况的
+        /// </summary>
+        /// <param name="jobId"></param>
+        /// <returns></returns>
+        public async Task<bool> RemoveNullDealyJob(string jobId)
+        {
+            var trans = _database.CreateTransaction();
+#pragma warning disable CS4014
+            trans.SortedSetRemoveAsync(Helper.GetDelaySortedSetName(_options), jobId);
+            trans.KeyDeleteAsync(Helper.GetJobHashId(_options, jobId));
+#pragma warning restore CS4014
+            var result = await trans.ExecuteAsync();
+
             return result;
         }
 

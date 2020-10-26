@@ -81,7 +81,7 @@ namespace Aix.RedisStreamMessageBus.BackgroundProcess
                     else
                     {
                         _logger.LogError("延迟任务解析出错为空，这里就从hash中删除了");
-                        await _redisStorage.KeyDelete(jobId);
+                        await _redisStorage.RemoveNullDealyJob(jobId);
                     }
                 }
 

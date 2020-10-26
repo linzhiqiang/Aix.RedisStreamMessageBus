@@ -89,7 +89,7 @@ namespace Aix.RedisStreamMessageBus
                     await handler(realObj);
                 };
                 //先处理当前消费者组中的pel数据 上次重启没有执行完成的 一台机器一个consumerName
-                var consumerName = $"{_options.TopicPrefix}{_options.DefaultConsumerName}_{IPUtils.IPToInt(IPUtils.GetLocalIP())}";
+                var consumerName = GetConsumerName();
                 //var pelProcess = new WorkerProcess(_serviceProvider, topic, groupId, consumerName);
                 //pelProcess.OnMessage += action;
                 //await pelProcess.ProcessPel();
@@ -159,6 +159,24 @@ namespace Aix.RedisStreamMessageBus
                 await _processExecuter.AddProcess(new DelayedWorkProcess(_serviceProvider), "redis延迟任务处理");
                 //await _processExecuter.AddProcess(new ErrorWorkerProcess(_serviceProvider), "redis失败任务处理");
             });
+        }
+
+        private string GetConsumerName()
+        {
+            var consumerName = "";
+            switch (_options.ConsumerNameType)
+            {
+                case ConsumerNameType.LocalIPPostfix:
+                    consumerName = $"{_options.DefaultConsumerName}_{IPUtils.IPToInt(IPUtils.GetLocalIP())}";
+                    break;
+                case ConsumerNameType.Constant:
+                    consumerName = _options.DefaultConsumerName;
+                    break;
+                default:
+                    consumerName = $"{_options.DefaultConsumerName}_{IPUtils.IPToInt(IPUtils.GetLocalIP())}";
+                    break;
+            }
+            return consumerName;
         }
 
         #endregion

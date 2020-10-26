@@ -59,9 +59,9 @@ namespace Aix.RedisStreamMessageBus.Sample.HostedService
                             CreateTime = DateTime.Now
                         };
                         await _messageBus.PublishAsync(messageData);
-                        //await _messageBus.PublishDelayAsync(messageData,TimeSpan.FromSeconds(17));
+                        await _messageBus.PublishDelayAsync(messageData,TimeSpan.FromSeconds(17));
                         _logger.LogInformation($"{DateTime.Now.ToString("yyyy-MM-dd HH:mm:ss fff")}生产数据：MessageId={messageData.MessageId}");
-                        await Task.Delay(5);
+                        //await Task.Delay(5);
                     }
                     catch (Exception ex)
                     {

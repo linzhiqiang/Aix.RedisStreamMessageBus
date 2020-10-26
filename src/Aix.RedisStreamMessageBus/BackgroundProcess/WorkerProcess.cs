@@ -26,7 +26,7 @@ namespace Aix.RedisStreamMessageBus.BackgroundProcess
         private string _consumerName;
 
         public event Func<JobData, Task> OnMessage;
-        int BatchCount = 100; //一次拉取多少条  目前只能取一个，区多个会导致取回来没有执行的 空闲时间增加导致错误处理有问题
+        int BatchCount = 10; //一次拉取多少条  目前只能取一个，区多个会导致取回来没有执行的 空闲时间增加导致错误处理有问题
         private volatile bool _isStart = true;
         public WorkerProcess(IServiceProvider serviceProvider, string topic, string groupName, string consumerName)
         {
@@ -40,6 +40,8 @@ namespace Aix.RedisStreamMessageBus.BackgroundProcess
             _consumerName = consumerName;
             _redisStorage = _serviceProvider.GetService<RedisStorage>();
 
+            BatchCount = _options.PerBatchPullCount > 0 ? _options.PerBatchPullCount : 10;
+
         }
 
         public async Task Start(BackgroundProcessContext context)
@@ -52,7 +54,7 @@ namespace Aix.RedisStreamMessageBus.BackgroundProcess
             while (true)
             {
                 //读取pending 中的消息
-                var list = await _database.StreamReadGroupAsync(_topic, _groupName, _consumerName, "0-0", 100);
+                var list = await _database.StreamReadGroupAsync(_topic, _groupName, _consumerName, "0-0", 20);
                 if (list == null || list.Length == 0)
                 {
                     return;
