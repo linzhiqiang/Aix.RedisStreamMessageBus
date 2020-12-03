@@ -8,12 +8,12 @@ namespace Aix.RedisStreamMessageBus
     public class RedisMessageBusOptions
     {
         public static string DefaultGroupName = "default-group";
-        //public static string DefaultConsumerName = "consumer";
+        public static string DefaultConsumerName = "consumer";
         private int[] DefaultRetryStrategy = new int[] { 1, 5, 30, 60, 2 * 60, 5 * 60, 10 * 60 };
         public RedisMessageBusOptions()
         {
             this.TopicPrefix = "dog:messagebus:";
-            this.Serializer = new MessagePackSerializer();
+            this.Serializer = MessagePackSerializerImpl.Serializer;
         }
 
 
@@ -42,7 +42,7 @@ namespace Aix.RedisStreamMessageBus
         /// </summary>
         public int StreamMaxLength { get; set; } = 1000000;
 
-        public string DefaultConsumerName { get; set; } = "consumer";
+        public string ConsumerName { get; set; } = "consumer";
 
         public ConsumerNameType ConsumerNameType { get; set; } = ConsumerNameType.LocalIPPostfix;
 
@@ -98,12 +98,13 @@ namespace Aix.RedisStreamMessageBus
         /// </summary>
         public static Func<Exception, Task<bool>> IsRetry { get; set; }
 
-       
+
 
     }
 
     public enum ConsumerNameType
     {
+
         /// <summary>
         /// 本机ip作为后缀 分布式部署时采用 也是默认值
         /// </summary>
@@ -112,7 +113,12 @@ namespace Aix.RedisStreamMessageBus
         /// <summary>
         /// 常量 单机部署时采用
         /// </summary>
-        Constant = 2
+        Default = 2,
+
+        /// <summary>
+        /// 自定义 请配置ConsumerName
+        /// </summary>
+        Custom = 3
 
 
     }

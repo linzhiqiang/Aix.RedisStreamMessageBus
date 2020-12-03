@@ -81,7 +81,7 @@ namespace Aix.RedisStreamMessageBus
             var groupPosition = !string.IsNullOrEmpty(subscribeOptions?.GroupPosition) ? subscribeOptions.GroupPosition : "$";//0-0 $  
             await _redisStorage.CreateConsumerGroupIfNotExist(topic, groupId, groupPosition); //StreamPosition.NewMessages
 #pragma warning disable CS4014
-            Task.Run(async() =>
+            Task.Run(async () =>
             {
                 Func<JobData, Task> action = async message =>
                 {
@@ -105,7 +105,7 @@ namespace Aix.RedisStreamMessageBus
                         await process.ProcessPel();
                     }
                     await _processExecuter.AddProcess(process, $"redis即时任务处理：{topic}");
-                   
+
                 }
                 _backgroundProcessContext.SubscriberTopics.Add(new SubscriberTopicInfo { Topic = topic, GroupName = groupId });//便于ErrorProcess处理
             });
@@ -163,20 +163,29 @@ namespace Aix.RedisStreamMessageBus
 
         private string GetConsumerName()
         {
-            var consumerName = "";
+            string consumerName;
             switch (_options.ConsumerNameType)
             {
                 case ConsumerNameType.LocalIPPostfix:
-                    consumerName = $"{_options.DefaultConsumerName}_{IPUtils.IPToInt(IPUtils.GetLocalIP())}";
+                    consumerName = CreateConsumerNameByIP();
                     break;
-                case ConsumerNameType.Constant:
-                    consumerName = _options.DefaultConsumerName;
+                case ConsumerNameType.Default:
+                    consumerName = RedisMessageBusOptions.DefaultConsumerName;
+                    break;
+                case ConsumerNameType.Custom:
+                    AssertUtils.IsNotEmpty(_options.ConsumerName, "选择Custom模式，请配置ConsumerName");
+                    consumerName = _options.ConsumerName;
                     break;
                 default:
-                    consumerName = $"{_options.DefaultConsumerName}_{IPUtils.IPToInt(IPUtils.GetLocalIP())}";
+                    consumerName = CreateConsumerNameByIP();
                     break;
             }
             return consumerName;
+        }
+
+        private string CreateConsumerNameByIP()
+        {
+            return $"{RedisMessageBusOptions.DefaultConsumerName}_{IPUtils.IPToInt(IPUtils.GetLocalIP())}"; ;
         }
 
         #endregion

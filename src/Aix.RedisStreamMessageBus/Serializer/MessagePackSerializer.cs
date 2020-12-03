@@ -6,15 +6,18 @@ using System.Text;
 
 namespace Aix.RedisStreamMessageBus.Serializer
 {
-    public class MessagePackSerializer : ISerializer
+    
+    public class MessagePackSerializerImpl : ISerializer
     {
+        public static MessagePackSerializerImpl Serializer = new MessagePackSerializerImpl();
+
         private readonly IFormatterResolver _formatterResolver;
         private readonly bool _useCompression;
 
         private MessagePackSerializerOptions _compressionOptions;
         private MessagePackSerializerOptions _unCompressionOptions;
 
-        public MessagePackSerializer(IFormatterResolver resolver = null, bool useCompression = false)
+        public MessagePackSerializerImpl(IFormatterResolver resolver = null, bool useCompression = false)
         {
             _useCompression = useCompression;
             _formatterResolver = resolver ?? ContractlessStandardResolver.Instance;
@@ -47,4 +50,6 @@ namespace Aix.RedisStreamMessageBus.Serializer
             }
         }
     }
+
+    
 }

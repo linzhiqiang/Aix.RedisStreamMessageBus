@@ -58,8 +58,8 @@ namespace Aix.RedisStreamMessageBus.BackgroundProcess
                    foreach (var item in context.SubscriberTopics)
                    {
                        if (_isStart == false) return;//及时关闭
-                       var waitTime = await ProcessPel(item);
-                       waitTimes.Add(waitTime);
+                       var currentWaitTime = await ProcessPel(item);
+                       waitTimes.Add(currentWaitTime);
                    }
                }, () => Task.CompletedTask);
 
