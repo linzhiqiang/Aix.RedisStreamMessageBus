@@ -9,9 +9,10 @@ namespace Aix.RedisStreamMessageBus
 {
     public class BackgroundProcessContext
     {
-        public BackgroundProcessContext(CancellationToken cancellationToken)
+        CancellationTokenSource StoppingSource = new CancellationTokenSource();
+        public BackgroundProcessContext()
         {
-            CancellationToken = cancellationToken;
+            CancellationToken = StoppingSource.Token;
         }
         public CancellationToken CancellationToken { get; }
 
@@ -21,5 +22,32 @@ namespace Aix.RedisStreamMessageBus
         public ConcurrentBag<SubscriberTopicInfo> SubscriberTopics { get; } = new ConcurrentBag<SubscriberTopicInfo>();
 
         public bool IsShutdownRequested => CancellationToken.IsCancellationRequested;
+
+        public void Stop()
+        {
+            lock (StoppingSource)
+            {
+                try
+                {
+                    ExecuteHandlers(StoppingSource);
+                }
+                catch (Exception)
+                {
+
+                }
+            }
+        }
+
+        private void ExecuteHandlers(CancellationTokenSource cancel)
+        {
+            // Noop if this is already cancelled
+            if (cancel.IsCancellationRequested)
+            {
+                return;
+            }
+
+            // Run the cancellation token callbacks
+            cancel.Cancel(throwOnFirstException: false);
+        }
     }
 }

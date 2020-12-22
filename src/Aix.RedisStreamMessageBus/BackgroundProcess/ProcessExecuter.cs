@@ -40,10 +40,12 @@ namespace Aix.RedisStreamMessageBus.BackgroundProcess
         public Task Close()
         {
             this._isStart = false;
+            _backgroundProcessContext.Stop();
             foreach (var item in _backgroundProcesses)
             {
                 item.Dispose();
             }
+
             return Task.CompletedTask;
         }
 
@@ -57,10 +59,13 @@ namespace Aix.RedisStreamMessageBus.BackgroundProcess
                 {
                     await process.Execute(_backgroundProcessContext); //内部控制异常
                 }
+                catch (TaskCanceledException)
+                {
+                }
                 catch (RedisException ex)
                 {
                     _logger.LogError(ex, "redis错误");
-                    await Task.Delay(TimeSpan.FromSeconds(10));
+                    await Task.Delay(TimeSpan.FromSeconds(10), _backgroundProcessContext.CancellationToken);
                 }
                 catch (Exception ex)
                 {

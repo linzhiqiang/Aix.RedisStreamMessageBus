@@ -64,7 +64,7 @@ namespace Aix.RedisStreamMessageBus.BackgroundProcess
                }, () => Task.CompletedTask);
 
             var waitTime = waitTimes.Any() ? waitTimes.Min() : ExecuteTimeoutMilliseconds / 2;
-            await Task.Delay(TimeSpan.FromMilliseconds(waitTime));
+            await Task.Delay(TimeSpan.FromMilliseconds(waitTime), context.CancellationToken);
         }
 
         private async Task<long> ProcessPel(SubscriberTopicInfo subscriberTopicInfo)

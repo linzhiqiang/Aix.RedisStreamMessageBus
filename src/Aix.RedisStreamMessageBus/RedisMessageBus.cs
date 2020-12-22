@@ -34,7 +34,7 @@ namespace Aix.RedisStreamMessageBus
             _redisStorage = redisStorage;
 
 
-            _backgroundProcessContext = new BackgroundProcessContext(default(CancellationToken));
+            _backgroundProcessContext = new BackgroundProcessContext();
             _processExecuter = new ProcessExecuter(_serviceProvider, _backgroundProcessContext);
 
         }
@@ -102,7 +102,7 @@ namespace Aix.RedisStreamMessageBus
                     process.OnMessage += action;
                     if (i == 0) //目前用同一个消费者名称，所以只处理第一个pel就行了
                     {
-                        await process.ProcessPel();
+                        await process.ProcessPel(_backgroundProcessContext);
                     }
                     await _processExecuter.AddProcess(process, $"redis即时任务处理：{topic}");
 
