@@ -8,6 +8,7 @@ using System.Threading.Tasks;
 using Microsoft.Extensions.DependencyInjection;
 using Aix.RedisStreamMessageBus.Model;
 using System.Linq;
+using Aix.RedisStreamMessageBus.Foundation;
 
 namespace Aix.RedisStreamMessageBus.BackgroundProcess
 {
@@ -64,7 +65,7 @@ namespace Aix.RedisStreamMessageBus.BackgroundProcess
                }, () => Task.CompletedTask);
 
             var waitTime = waitTimes.Any() ? waitTimes.Min() : ExecuteTimeoutMilliseconds / 2;
-            await Task.Delay(TimeSpan.FromMilliseconds(waitTime), context.CancellationToken);
+            await TaskEx.DelayNoException(TimeSpan.FromMilliseconds(waitTime), context.CancellationToken);
         }
 
         private async Task<long> ProcessPel(SubscriberTopicInfo subscriberTopicInfo)

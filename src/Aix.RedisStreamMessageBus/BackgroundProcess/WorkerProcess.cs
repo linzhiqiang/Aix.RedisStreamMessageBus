@@ -9,6 +9,7 @@ using StackExchange.Redis;
 using System.Linq;
 using Aix.RedisStreamMessageBus.RedisImpl;
 using Aix.RedisStreamMessageBus.Model;
+using Aix.RedisStreamMessageBus.Foundation;
 
 namespace Aix.RedisStreamMessageBus.BackgroundProcess
 {
@@ -76,7 +77,7 @@ namespace Aix.RedisStreamMessageBus.BackgroundProcess
             var list = await _database.StreamReadGroupAsync(_topic, _groupName, _consumerName, ">", BatchCount);
             if (list.Length == 0)
             {
-                await Task.Delay(TimeSpan.FromMilliseconds(_options.ConsumeIntervalMillisecond), context.CancellationToken);
+                await TaskEx.DelayNoException(TimeSpan.FromMilliseconds(_options.ConsumeIntervalMillisecond), context.CancellationToken);
                 return;
             }
 

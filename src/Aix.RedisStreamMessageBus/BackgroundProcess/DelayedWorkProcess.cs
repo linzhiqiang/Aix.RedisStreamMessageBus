@@ -7,6 +7,7 @@ using System.Threading.Tasks;
 using Microsoft.Extensions.DependencyInjection;
 using Aix.RedisStreamMessageBus.Utils;
 using Aix.RedisStreamMessageBus.Model;
+using Aix.RedisStreamMessageBus.Foundation;
 
 namespace Aix.RedisStreamMessageBus.BackgroundProcess
 {
@@ -93,7 +94,7 @@ namespace Aix.RedisStreamMessageBus.BackgroundProcess
 
             if (delay > 0)
             {
-                await Task.Delay(Math.Min((int)delay, _options.DelayIntervalMillisecond), context.CancellationToken);
+                await TaskEx.DelayNoException(Math.Min((int)delay, _options.DelayIntervalMillisecond), context.CancellationToken);
             }
         }
 

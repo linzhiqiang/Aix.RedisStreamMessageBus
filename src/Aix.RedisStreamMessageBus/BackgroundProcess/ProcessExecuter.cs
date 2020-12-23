@@ -5,6 +5,7 @@ using Microsoft.Extensions.DependencyInjection;
 using System.Text;
 using System.Threading.Tasks;
 using StackExchange.Redis;
+using Aix.RedisStreamMessageBus.Foundation;
 
 namespace Aix.RedisStreamMessageBus.BackgroundProcess
 {
@@ -65,7 +66,7 @@ namespace Aix.RedisStreamMessageBus.BackgroundProcess
                 catch (RedisException ex)
                 {
                     _logger.LogError(ex, "redis错误");
-                    await Task.Delay(TimeSpan.FromSeconds(10), _backgroundProcessContext.CancellationToken);
+                    await TaskEx.DelayNoException(TimeSpan.FromSeconds(10), _backgroundProcessContext.CancellationToken);
                 }
                 catch (Exception ex)
                 {
