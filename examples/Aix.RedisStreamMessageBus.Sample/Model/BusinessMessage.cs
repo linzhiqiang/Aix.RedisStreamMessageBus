@@ -5,7 +5,7 @@ using System.Text;
 
 namespace Aix.RedisStreamMessageBus.Sample.Model
 {
-    [TopicAttribute(Name = "BusinessMessage")]
+    [TopicAttribute(Name = "BusinessMessageDemo1")]
     public class BusinessMessage
     {
         // [RouteKeyAttribute]
@@ -15,7 +15,7 @@ namespace Aix.RedisStreamMessageBus.Sample.Model
         public DateTime CreateTime { get; set; }
     }
 
-    [TopicAttribute(Name = "BusinessMessage2")]
+    [TopicAttribute(Name = "BusinessMessageDemo2")]
     public class BusinessMessage2
     {
         public string MessageId { get; set; }

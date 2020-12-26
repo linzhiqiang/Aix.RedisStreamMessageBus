@@ -4,7 +4,8 @@
     <TargetFramework>netstandard2.0</TargetFramework>
     <AssemblyName>Aix.RedisStreamMessageBus</AssemblyName>
     <GeneratePackageOnBuild>true</GeneratePackageOnBuild>
-    <Version>1.0.1</Version>
+    <Version>1.0.2</Version>
+    <Description>redis版即时任务(stream)和延迟任务(zset)</Description>
   </PropertyGroup>
 
   <ItemGroup>

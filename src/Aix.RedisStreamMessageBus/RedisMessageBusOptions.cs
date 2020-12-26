@@ -73,9 +73,9 @@ namespace Aix.RedisStreamMessageBus
 
 
         /// <summary>
-        /// 延迟任务处理间隔(没数据时)
+        /// 延迟任务预处数据时间 建议[1,5]，也是延迟任务最低粒度
         /// </summary>
-        public int DelayIntervalMillisecond { get; set; } = 1000;
+        public int DelayTaskPreReadSecond { get; set; } = 1;
 
         /// <summary>
         /// 最大错误重试次数 默认10次
