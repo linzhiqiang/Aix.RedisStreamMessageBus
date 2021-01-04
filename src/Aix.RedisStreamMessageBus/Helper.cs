@@ -16,5 +16,10 @@ namespace Aix.RedisStreamMessageBus
             return $"{options.TopicPrefix}delay:jobid";
         }
 
+        public static string GetDelayChannel(RedisMessageBusOptions options)
+        {
+            return $"{options.TopicPrefix}DelayJobChannel";
+        }
+
     }
 }

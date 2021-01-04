@@ -77,7 +77,7 @@ namespace Aix.RedisStreamMessageBus.BackgroundProcess
             var list = await _database.StreamReadGroupAsync(_topic, _groupName, _consumerName, ">", BatchCount);
             if (list.Length == 0)
             {
-                await TaskEx.DelayNoException(TimeSpan.FromMilliseconds(_options.ConsumeIntervalMillisecond), context.CancellationToken);
+                await TaskEx.DelayNoException(TimeSpan.FromMilliseconds(_options.ConsumePullIntervalMillisecond), context.CancellationToken);
                 return;
             }
 

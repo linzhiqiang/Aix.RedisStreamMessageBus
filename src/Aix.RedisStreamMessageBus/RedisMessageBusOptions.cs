@@ -57,9 +57,9 @@ namespace Aix.RedisStreamMessageBus
         public int PerBatchPullCount { get; set; } = 10;
 
         /// <summary>
-        /// 消费者没数据时 间隔时间(没数据时) 100
+        ///  消费者没数据时 间隔时间(没数据时) 默认100毫秒
         /// </summary>
-        public int ConsumeIntervalMillisecond { get; set; } = 100;
+        public int ConsumePullIntervalMillisecond { get; set; } = 100;
 
         /// <summary>
         /// 执行超时时间，超过该时间，任务存在被重新执行的风险 默认60秒
@@ -73,9 +73,9 @@ namespace Aix.RedisStreamMessageBus
 
 
         /// <summary>
-        /// 延迟任务预处数据时间 建议[1,5]，也是延迟任务最低粒度
+        /// 延迟任务预处数据时间 内部有订阅延迟时间小于该值的任务，所以也支持小于该值的任务  默认5秒（不建议更小，可以更大）
         /// </summary>
-        public int DelayTaskPreReadSecond { get; set; } = 1;
+        public int DelayTaskPreReadSecond { get; set; } = 5;
 
         /// <summary>
         /// 最大错误重试次数 默认10次

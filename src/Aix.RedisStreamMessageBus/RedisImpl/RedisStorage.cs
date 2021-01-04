@@ -1,10 +1,12 @@
-﻿using Aix.RedisStreamMessageBus.Model;
+﻿using Aix.RedisStreamMessageBus.Foundation;
+using Aix.RedisStreamMessageBus.Model;
 using Aix.RedisStreamMessageBus.Utils;
 using StackExchange.Redis;
 using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
+using System.Threading;
 using System.Threading.Tasks;
 
 namespace Aix.RedisStreamMessageBus.RedisImpl
@@ -15,6 +17,7 @@ namespace Aix.RedisStreamMessageBus.RedisImpl
         private ConnectionMultiplexer _redis = null;
         private IDatabase _database;
         private RedisMessageBusOptions _options;
+        private readonly RedisSubscription _delayJobChannelSubscription;
 
         public RedisStorage(IServiceProvider serviceProvider, ConnectionMultiplexer redis, RedisMessageBusOptions options)
         {
@@ -22,6 +25,8 @@ namespace Aix.RedisStreamMessageBus.RedisImpl
             this._redis = redis;
             this._options = options;
             _database = redis.GetDatabase();
+
+            _delayJobChannelSubscription = new RedisSubscription(_serviceProvider, _redis.GetSubscriber(), Helper.GetDelayChannel(_options));
         }
 
         #region Stream
@@ -100,6 +105,10 @@ namespace Aix.RedisStreamMessageBus.RedisImpl
             trans.HashSetAsync(hashJobId, values.ToArray());
             trans.KeyExpireAsync(hashJobId, TimeSpan.FromDays(_options.DataExpireHour));
             trans.SortedSetAddAsync(Helper.GetDelaySortedSetName(_options), jobData.JobId, DateUtils.GetTimeStamp(DateTime.Now.Add(delay))); //当前时间戳，
+            if (delay < TimeSpan.FromSeconds(_options.DelayTaskPreReadSecond))
+            {
+                trans.PublishAsync(_delayJobChannelSubscription.Channel, jobData.JobId);
+            }
 #pragma warning restore CS4014
             var result = await trans.ExecuteAsync();
 
@@ -164,6 +173,11 @@ namespace Aix.RedisStreamMessageBus.RedisImpl
 
 
         #endregion
+
+        public void WaitForDelayJob(TimeSpan timeSpan, CancellationToken cancellationToken = default(CancellationToken))
+        {
+            _delayJobChannelSubscription.WaitForJob(timeSpan, cancellationToken);
+        }
 
         public async Task Lock(string key, TimeSpan span, Func<Task> action, Func<Task> concurrentCallback = null)
         {
