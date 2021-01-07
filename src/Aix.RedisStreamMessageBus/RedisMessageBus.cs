@@ -94,6 +94,7 @@ namespace Aix.RedisStreamMessageBus
                 //pelProcess.OnMessage += action;
                 //await pelProcess.ProcessPel();
 
+                threadCount = 1;//改为本地多线程任务执行
                 for (int i = 0; i < threadCount; i++)
                 {
                     var process = new WorkerProcess(_serviceProvider, topic, groupId, consumerName);

@@ -4,6 +4,7 @@ using StackExchange.Redis;
 using System;
 using System.Collections.Generic;
 using System.Text;
+using Aix.MultithreadExecutor;
 
 namespace Aix.RedisStreamMessageBus
 {
@@ -11,6 +12,7 @@ namespace Aix.RedisStreamMessageBus
     {
         public static IServiceCollection AddRedisMessageBus(this IServiceCollection services, RedisMessageBusOptions options)
         {
+            services.AddMultithreadExecutor(options.DefaultConsumerThreadCount);
             AddService(services, options);
             services.AddSingleton<IRedisMessageBus, RedisMessageBus>();
             return services;

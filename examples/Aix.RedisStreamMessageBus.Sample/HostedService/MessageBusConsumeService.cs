@@ -49,7 +49,7 @@ namespace Aix.RedisStreamMessageBus.Sample.HostedService
                     // await Task.Delay(10);
                     //throw new System.ArgumentException("333");
                     // throw new BizException(1,"不重试");
-                    throw new Exception("重试异常");
+                    //throw new Exception("重试异常");
                     await Task.CompletedTask;
                 }, null, cancellationToken);
             }

@@ -4,12 +4,13 @@
     <TargetFramework>netstandard2.0</TargetFramework>
     <AssemblyName>Aix.RedisStreamMessageBus</AssemblyName>
     <GeneratePackageOnBuild>true</GeneratePackageOnBuild>
-    <Version>1.0.4</Version>
+    <Version>1.0.5</Version>
     <Description>redis版即时任务(stream)和延迟任务(zset)</Description>
-    <PackageReleaseNotes>优化延迟任务</PackageReleaseNotes>
+    <PackageReleaseNotes>拉去数据后交由本地多线程执行器执行</PackageReleaseNotes>
   </PropertyGroup>
 
   <ItemGroup>
+    <PackageReference Include="Aix.MultithreadExecutor" Version="1.0.1" />
     <PackageReference Include="MessagePack" Version="2.2.60" />
     <PackageReference Include="Microsoft.Extensions.DependencyInjection.Abstractions" Version="5.0.0" />
     <PackageReference Include="Microsoft.Extensions.Logging.Abstractions" Version="5.0.0" />

@@ -10,6 +10,7 @@ using System.Linq;
 using Aix.RedisStreamMessageBus.RedisImpl;
 using Aix.RedisStreamMessageBus.Model;
 using Aix.RedisStreamMessageBus.Foundation;
+using Aix.MultithreadExecutor;
 
 namespace Aix.RedisStreamMessageBus.BackgroundProcess
 {
@@ -21,6 +22,7 @@ namespace Aix.RedisStreamMessageBus.BackgroundProcess
         private RedisStorage _redisStorage;
         private ConnectionMultiplexer _redis = null;
         private IDatabase _database;
+        private ITaskExecutor _taskExecutor;
 
         private string _topic;
         private string _groupName;
@@ -36,6 +38,8 @@ namespace Aix.RedisStreamMessageBus.BackgroundProcess
             _options = _serviceProvider.GetService<RedisMessageBusOptions>();
             _redis = _serviceProvider.GetService<ConnectionMultiplexer>();
             _database = _redis.GetDatabase();
+            _taskExecutor = _serviceProvider.GetService<ITaskExecutor>();
+
             _topic = topic;
             _groupName = groupName;
             _consumerName = consumerName;
@@ -50,6 +54,11 @@ namespace Aix.RedisStreamMessageBus.BackgroundProcess
             await Task.CompletedTask;
         }
 
+        /// <summary>
+        /// 服务启动时先处理pel中的数据（上次服务结束时拉去到但是未执行的数据/未ack）
+        /// </summary>
+        /// <param name="context"></param>
+        /// <returns></returns>
         public async Task ProcessPel(BackgroundProcessContext context)
         {
             while (!context.IsShutdownRequested)
@@ -61,7 +70,7 @@ namespace Aix.RedisStreamMessageBus.BackgroundProcess
                     return;
                 }
 
-                await ProcessList(list);
+                await ProcessList(list, false);//每次启动时处理pel中的数据，要同步处理，等处理结束，再拉去新消息处理
             }
         }
 
@@ -73,6 +82,12 @@ namespace Aix.RedisStreamMessageBus.BackgroundProcess
 
         public async Task Execute(BackgroundProcessContext context)
         {
+            if (_taskExecutor.GetTaskCount() > _options.TaskExecutorMaxTaskCount) //队列任务积压超过1000就不要再拉取了，不然也处理不过来
+            {
+                await TaskEx.DelayNoException(TimeSpan.FromMilliseconds(_options.ConsumePullIntervalMillisecond), context.CancellationToken);
+                return;
+            }
+
             ////   >：读取未分配给其他消费者的消息(未被拉去的)  0-0或id： 读取pending 中的消息
             var list = await _database.StreamReadGroupAsync(_topic, _groupName, _consumerName, ">", BatchCount);
             if (list.Length == 0)
@@ -81,29 +96,51 @@ namespace Aix.RedisStreamMessageBus.BackgroundProcess
                 return;
             }
 
-            await ProcessList(list);
+            await ProcessList(list, true);
         }
 
-        private async Task ProcessList(StreamEntry[] list)
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <param name="list"></param>
+        /// <param name="asyncExecute">是否异步执行</param>
+        /// <returns></returns>
+        private async Task ProcessList(StreamEntry[] list, bool asyncExecute)
         {
             foreach (var item in list)
             {
                 if (_isStart == false) return;//及时关闭
-                try
+
+                if (asyncExecute)
                 {
-                    await Handle(item);
+                    _taskExecutor.Execute(async (state) => //进入本地多线程执行器中
+                    {
+                        var thisObj = (WorkerProcess)state;
+                        await thisObj.HandleWrap(item);
+                    }, this);
                 }
-                catch (Exception ex)
+                else
                 {
-                    _logger.LogError(ex, $"redis消费失败,topic:{_topic}，groupName:{_groupName}");
-                }
-                finally
-                {
-                    await _database.StreamAcknowledgeAsync(_topic, _groupName, item.Id);
+                    await HandleWrap(item);
                 }
             }
         }
 
+        private async Task HandleWrap(StreamEntry streamEntry)
+        {
+            try
+            {
+                await Handle(streamEntry);
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex, $"redis消费失败,topic:{_topic}，groupName:{_groupName}");
+            }
+            finally
+            {
+                await _database.StreamAcknowledgeAsync(_topic, _groupName, streamEntry.Id);
+            }
+        }
 
         private async Task Handle(StreamEntry streamEntry)
         {

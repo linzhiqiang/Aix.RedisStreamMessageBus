@@ -52,6 +52,11 @@ namespace Aix.RedisStreamMessageBus
         public int DefaultConsumerThreadCount { get; set; } = 2;
 
         /// <summary>
+        /// 任务执行器中的最大任务数，超过该值就暂停拉去
+        /// </summary>
+        public int TaskExecutorMaxTaskCount { get; set; } = 1000;
+
+        /// <summary>
         /// 每次拉去多少条
         /// </summary>
         public int PerBatchPullCount { get; set; } = 10;
