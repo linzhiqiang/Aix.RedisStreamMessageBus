@@ -46,9 +46,10 @@ namespace Aix.RedisStreamMessageBus.Sample.HostedService
                     var current = Interlocked.Increment(ref Count);
 
                     _logger.LogInformation($"{DateTime.Now.ToString("yyyy-MM-dd HH:mm:ss fff")}消费--1--数据：MessageId={message.MessageId},Content={message.Content},count={current}");
-                   // await Task.Delay(10);
+                    // await Task.Delay(10);
                     //throw new System.ArgumentException("333");
-                    // throw new Exception("333");
+                    // throw new BizException(1,"不重试");
+                    throw new Exception("重试异常");
                     await Task.CompletedTask;
                 }, null, cancellationToken);
             }

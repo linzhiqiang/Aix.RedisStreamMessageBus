@@ -69,7 +69,7 @@ namespace Aix.RedisStreamMessageBus
         /// <summary>
         /// 任务数据有效期 默认7天=168 单位  小时
         /// </summary>
-        public int DataExpireHour { get; set; } = 168;
+        //public int DataExpireHour { get; set; } = 168;
 
 
         /// <summary>

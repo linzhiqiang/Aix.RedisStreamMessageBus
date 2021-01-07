@@ -103,7 +103,7 @@ namespace Aix.RedisStreamMessageBus.RedisImpl
             var trans = _database.CreateTransaction();
 #pragma warning disable CS4014
             trans.HashSetAsync(hashJobId, values.ToArray());
-            trans.KeyExpireAsync(hashJobId, TimeSpan.FromDays(_options.DataExpireHour));
+            //trans.KeyExpireAsync(hashJobId, TimeSpan.FromDays(_options.DataExpireHour));
             trans.SortedSetAddAsync(Helper.GetDelaySortedSetName(_options), jobData.JobId, DateUtils.GetTimeStamp(DateTime.Now.Add(delay))); //当前时间戳，
             if (delay < TimeSpan.FromSeconds(_options.DelayTaskPreReadSecond))
             {
@@ -132,7 +132,6 @@ namespace Aix.RedisStreamMessageBus.RedisImpl
             }
             return Task.FromResult(dict);
         }
-
 
 
         /// <summary>

@@ -122,6 +122,7 @@ namespace Aix.RedisStreamMessageBus.BackgroundProcess
                 jobData.ErrorGroup = _groupName;
 
                 await _redisStorage.EnqueueDealy(jobData, TimeSpan.FromSeconds(delaySecond));
+                _logger.LogInformation($"redis消费失败,topic:{jobData.Topic},{delaySecond}秒后将进行{jobData.ErrorCount }次重试");
             }
         }
 

@@ -60,7 +60,7 @@ namespace Aix.RedisStreamMessageBus.BackgroundProcess
                 {
                     await process.Execute(_backgroundProcessContext); //内部控制异常
                 }
-                catch (TaskCanceledException)
+                catch (OperationCanceledException)
                 {
                 }
                 catch (RedisException ex)
