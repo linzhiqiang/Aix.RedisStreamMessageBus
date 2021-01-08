@@ -7,12 +7,13 @@ namespace Aix.RedisStreamMessageBus.Model
 {
     public class JobData
     {
-        public static JobData CreateJobData(string topic, byte[] data)
+        public static JobData CreateJobData(string topic, byte[] data,string routeKey)
         {
             return new JobData
             {
                 Data = data,
-                Topic = topic
+                Topic = topic,
+                RouteKey = routeKey
             };
         }
 
@@ -30,6 +31,11 @@ namespace Aix.RedisStreamMessageBus.Model
 
         public string Topic { get; set; }
 
+        /// <summary>
+        /// 路由key
+        /// </summary>
+        public string RouteKey { get; set; }
+
         public int ErrorCount { get; set; }
 
         /// <summary>
@@ -43,6 +49,7 @@ namespace Aix.RedisStreamMessageBus.Model
             //var nameValues = new NameValueEntry[] {
             //     new NameValueEntry(nameof( JobData.JobId),jobData.JobId?? ""),
             //     new NameValueEntry(nameof( JobData.Topic),jobData.Topic ?? ""),
+            //new NameValueEntry(nameof(JobData.RouteKey), jobData.RouteKey ?? ""),
             //     new NameValueEntry(nameof( JobData.Data),jobData.Data ?? new byte[0]),
             //     new NameValueEntry(nameof( JobData.ErrorCount),jobData.ErrorCount),
             //     new NameValueEntry(nameof( JobData.ErrorGroup),jobData.ErrorGroup ?? ""),
@@ -75,6 +82,7 @@ namespace Aix.RedisStreamMessageBus.Model
             //var nameValues = new HashEntry[] {
             //     new HashEntry(nameof( JobData.JobId),jobData.JobId),
             //     new HashEntry(nameof( JobData.Topic),jobData.Topic),
+            //     new HashEntry(nameof(JobData.RouteKey), jobData.RouteKey),
             //     new HashEntry(nameof( JobData.Data),jobData.Data),
             //     new HashEntry(nameof( JobData.ErrorCount),jobData.ErrorCount),
             //    };
@@ -85,7 +93,7 @@ namespace Aix.RedisStreamMessageBus.Model
             foreach (var item in GetType().GetProperties())
             {
                 var value = item.GetValue(this);
-                list.Add(new HashEntry(item.Name, value != null ? RedisValue.Unbox(value) : RedisValue.Null));
+                list.Add(new HashEntry(item.Name, value != null ? RedisValue.Unbox(value) : RedisValue.EmptyString));
             }
 
             return list.ToArray();
@@ -112,6 +120,7 @@ namespace Aix.RedisStreamMessageBus.Model
             //    //Data = dict.ContainsKey(nameof(JobData.Data)) ? dict[nameof(JobData.Data)] : RedisValue.Null,
             //    JobId = keyValues.GetValue(nameof(JobData.JobId)),
             //    Topic = keyValues.GetValue(nameof(JobData.Topic)),
+            //    RouteKey = keyValues.GetValue(nameof(JobData.RouteKey)),
             //    Data = keyValues.GetValue(nameof(JobData.Data)),
             //    ErrorCount = NumberUtils.ToInt(keyValues.GetValue(nameof(JobData.ErrorCount))),
             //    ErrorGroup = keyValues.GetValue(nameof(JobData.ErrorGroup)),

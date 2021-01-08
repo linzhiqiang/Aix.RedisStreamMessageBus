@@ -22,7 +22,7 @@ namespace Aix.RedisStreamMessageBus.BackgroundProcess
         private RedisStorage _redisStorage;
         private ConnectionMultiplexer _redis = null;
         private IDatabase _database;
-        private ITaskExecutor _taskExecutor;
+        private MyMultithreadTaskExecutor _taskExecutor;
 
         private string _topic;
         private string _groupName;
@@ -38,14 +38,14 @@ namespace Aix.RedisStreamMessageBus.BackgroundProcess
             _options = _serviceProvider.GetService<RedisMessageBusOptions>();
             _redis = _serviceProvider.GetService<ConnectionMultiplexer>();
             _database = _redis.GetDatabase();
-            _taskExecutor = _serviceProvider.GetService<ITaskExecutor>();
+            _taskExecutor = _serviceProvider.GetService<MyMultithreadTaskExecutor>();
 
             _topic = topic;
             _groupName = groupName;
             _consumerName = consumerName;
             _redisStorage = _serviceProvider.GetService<RedisStorage>();
 
-            BatchCount = _options.PerBatchPullCount > 0 ? _options.PerBatchPullCount : 10;
+            BatchCount = _options.PerBatchPullCount > 0 ? _options.PerBatchPullCount : 100;
 
         }
 
@@ -77,7 +77,7 @@ namespace Aix.RedisStreamMessageBus.BackgroundProcess
         public void Dispose()
         {
             _isStart = false;
-            _logger.LogInformation("关闭后台任务：redis即时任务处理");
+            _logger.LogInformation("RedisMessageBus即时任务已结束......");
         }
 
         public async Task Execute(BackgroundProcessContext context)
@@ -110,31 +110,32 @@ namespace Aix.RedisStreamMessageBus.BackgroundProcess
             foreach (var item in list)
             {
                 if (_isStart == false) return;//及时关闭
-
+                JobData jobData = ParseJobData(item);
                 if (asyncExecute)
                 {
-                    _taskExecutor.Execute(async (state) => //进入本地多线程执行器中
+                    //相同routeKey的任务进入同一个线程处理
+                    _taskExecutor.GetSingleThreadTaskExecutor(jobData.RouteKey).Execute(async (state) => //进入本地多线程执行器中
                     {
                         var thisObj = (WorkerProcess)state;
-                        await thisObj.HandleWrap(item);
+                        await thisObj.HandleWrap(item, jobData);
                     }, this);
                 }
                 else
                 {
-                    await HandleWrap(item);
+                    await HandleWrap(item, jobData);
                 }
             }
         }
 
-        private async Task HandleWrap(StreamEntry streamEntry)
+        private async Task HandleWrap(StreamEntry streamEntry, JobData jobData)
         {
             try
             {
-                await Handle(streamEntry);
+                await Handle(streamEntry, jobData);
             }
             catch (Exception ex)
             {
-                _logger.LogError(ex, $"redis消费失败,topic:{_topic}，groupName:{_groupName}");
+                _logger.LogError(ex, $"RedisMessageBus消费失败,topic:{_topic}，groupName:{_groupName}");
             }
             finally
             {
@@ -142,9 +143,9 @@ namespace Aix.RedisStreamMessageBus.BackgroundProcess
             }
         }
 
-        private async Task Handle(StreamEntry streamEntry)
+        private async Task Handle(StreamEntry streamEntry, JobData jobData)
         {
-            JobData jobData = ParseJobData(streamEntry);
+            //JobData jobData = ParseJobData(streamEntry);
             if (jobData == null) return;
 
             if (!string.IsNullOrEmpty(jobData.ErrorGroup) && _groupName != jobData.ErrorGroup) //是出错的任务需要重试，但不是该组的不处理
@@ -159,7 +160,7 @@ namespace Aix.RedisStreamMessageBus.BackgroundProcess
                 jobData.ErrorGroup = _groupName;
 
                 await _redisStorage.EnqueueDealy(jobData, TimeSpan.FromSeconds(delaySecond));
-                _logger.LogInformation($"redis消费失败,topic:{jobData.Topic},{delaySecond}秒后将进行{jobData.ErrorCount }次重试");
+                _logger.LogInformation($"RedisMessageBus消费失败,topic:{jobData.Topic},{delaySecond}秒后将进行{jobData.ErrorCount }次重试");
             }
         }
 
@@ -172,7 +173,7 @@ namespace Aix.RedisStreamMessageBus.BackgroundProcess
             }
             catch (Exception ex)
             {
-                _logger.LogError(ex, $"redis消费失败,topic:{jobData.Topic}");
+                _logger.LogError(ex, $"RedisMessageBus消费失败,topic:{jobData.Topic}");
                 if (RedisMessageBusOptions.IsRetry != null)
                 {
                     var isRetry = await RedisMessageBusOptions.IsRetry(ex);
@@ -191,7 +192,7 @@ namespace Aix.RedisStreamMessageBus.BackgroundProcess
             }
             catch (Exception ex)
             {
-                _logger.LogError(ex, $"redis解析任务数据报错{_topic},{_groupName}");
+                _logger.LogError(ex, $"RedisMessageBus解析任务数据报错{_topic},{_groupName}");
             }
             return jobData;
         }

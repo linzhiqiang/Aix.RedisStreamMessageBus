@@ -43,9 +43,10 @@ namespace Aix.RedisStreamMessageBus
         {
             AssertUtils.IsNotNull(message, "消息不能null");
             var topic = GetTopic(messageType);
-            var jobData = JobData.CreateJobData(topic, _options.Serializer.Serialize(message));
+            var routeKey = Helper.GetRouteKey(message);
+            var jobData = JobData.CreateJobData(topic, _options.Serializer.Serialize(message), routeKey);
             var result = await _redisStorage.StreamAdd(jobData);
-            AssertUtils.IsNotEmpty(result, $"redis生产者数据失败,topic:{topic}");
+            AssertUtils.IsNotEmpty(result, $"RedisMessageBus生产者数据失败,topic:{topic}");
         }
 
         public async Task PublishDelayAsync(Type messageType, object message, TimeSpan delay)
@@ -57,9 +58,10 @@ namespace Aix.RedisStreamMessageBus
                 return;
             }
             var topic = GetTopic(messageType);
-            var jobData = JobData.CreateJobData(topic, _options.Serializer.Serialize(message));
+            var routeKey = Helper.GetRouteKey(message);
+            var jobData = JobData.CreateJobData(topic, _options.Serializer.Serialize(message), routeKey);
             var result = await _redisStorage.EnqueueDealy(jobData, delay);
-            AssertUtils.IsTrue(result, $"redis生产者数据失败,topic:{topic}");
+            AssertUtils.IsTrue(result, $"RedisMessageBus生产者数据失败,topic:{topic}");
         }
 
         public async Task SubscribeAsync<T>(Func<T, Task> handler, SubscribeOptions subscribeOptions = null, CancellationToken cancellationToken = default) where T : class
@@ -70,13 +72,9 @@ namespace Aix.RedisStreamMessageBus
             var groupId = subscribeOptions?.GroupId;
             groupId = !string.IsNullOrEmpty(groupId) ? groupId : RedisMessageBusOptions.DefaultGroupName;
 
-            var threadCount = subscribeOptions?.ConsumerThreadCount ?? 0;
-            threadCount = threadCount > 0 ? threadCount : _options.DefaultConsumerThreadCount;
-            AssertUtils.IsTrue(threadCount > 0, "消费者线程数必须大于0");
-
             ValidateSubscribe(topic, groupId);
 
-            _logger.LogInformation($"订阅Topic:{topic},GroupId:{groupId},ConsumerThreadCount:{threadCount}");
+            _logger.LogInformation($"RedisMessageBus订阅Topic:{topic},GroupId:{groupId}");
 
             var groupPosition = !string.IsNullOrEmpty(subscribeOptions?.GroupPosition) ? subscribeOptions.GroupPosition : "$";//0-0 $  
             await _redisStorage.CreateConsumerGroupIfNotExist(topic, groupId, groupPosition); //StreamPosition.NewMessages
@@ -90,22 +88,11 @@ namespace Aix.RedisStreamMessageBus
                 };
                 //先处理当前消费者组中的pel数据 上次重启没有执行完成的 一台机器一个consumerName
                 var consumerName = GetConsumerName();
-                //var pelProcess = new WorkerProcess(_serviceProvider, topic, groupId, consumerName);
-                //pelProcess.OnMessage += action;
-                //await pelProcess.ProcessPel();
+                var process = new WorkerProcess(_serviceProvider, topic, groupId, consumerName);
+                process.OnMessage += action;
+                await process.ProcessPel(_backgroundProcessContext);//目前用同一个消费者名称，所以只处理第一个pel就行了
+                await _processExecuter.AddProcess(process, $"RedisMessageBus即时任务开始执行：{topic}......");
 
-                threadCount = 1;//改为本地多线程任务执行
-                for (int i = 0; i < threadCount; i++)
-                {
-                    var process = new WorkerProcess(_serviceProvider, topic, groupId, consumerName);
-                    process.OnMessage += action;
-                    if (i == 0) //目前用同一个消费者名称，所以只处理第一个pel就行了
-                    {
-                        await process.ProcessPel(_backgroundProcessContext);
-                    }
-                    await _processExecuter.AddProcess(process, $"redis即时任务处理：{topic}");
-
-                }
                 _backgroundProcessContext.SubscriberTopics.Add(new SubscriberTopicInfo { Topic = topic, GroupName = groupId });//便于ErrorProcess处理
             });
 #pragma warning restore CS4014
@@ -130,15 +117,7 @@ namespace Aix.RedisStreamMessageBus
 
         private string GetTopic(Type type)
         {
-            string topicName = type.Name;
-
-            var topicAttr = TopicAttribute.GetTopicAttribute(type);
-            if (topicAttr != null && !string.IsNullOrEmpty(topicAttr.Name))
-            {
-                topicName = topicAttr.Name;
-            }
-
-            return $"{_options.TopicPrefix ?? ""}{topicName}";
+            return Helper.GetTopic(_options, type);
         }
 
         /// <summary>
@@ -155,7 +134,7 @@ namespace Aix.RedisStreamMessageBus
 
             Task.Run(async () =>
             {
-                await _processExecuter.AddProcess(new DelayedWorkProcess(_serviceProvider), "redis延迟任务处理");
+                await _processExecuter.AddProcess(new DelayedWorkProcess(_serviceProvider), "RedisMessageBus延迟任务开始执行......");
                 //await _processExecuter.AddProcess(new ErrorWorkerProcess(_serviceProvider), "redis失败任务处理");
             });
         }

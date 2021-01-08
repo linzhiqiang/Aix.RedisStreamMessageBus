@@ -65,7 +65,7 @@ namespace Aix.RedisStreamMessageBus.Sample.HostedService
             {
                 //订阅配置可以灵活的增加参数 支持参数如下
                 SubscribeOptions subscribeOptions = new SubscribeOptions();
-                subscribeOptions.ConsumerThreadCount = 2;
+                //subscribeOptions.ConsumerThreadCount = 2;
                 subscribeOptions.GroupId = "g";
 
                 await _messageBus.SubscribeAsync<BusinessMessage>(async (message) =>

@@ -8,8 +8,11 @@ namespace Aix.RedisStreamMessageBus.Sample.Model
     [TopicAttribute(Name = "BusinessMessageDemo1")]
     public class BusinessMessage
     {
-        // [RouteKeyAttribute]
+      
         public string MessageId { get; set; }
+
+        [RouteKeyAttribute]
+        public string RouteKey { get; set; }
         public string Content { get; set; }
 
         public DateTime CreateTime { get; set; }
@@ -19,6 +22,9 @@ namespace Aix.RedisStreamMessageBus.Sample.Model
     public class BusinessMessage2
     {
         public string MessageId { get; set; }
+
+        public string RouteKey { get; set; }
+
         public string Content { get; set; }
 
         public DateTime CreateTime { get; set; }

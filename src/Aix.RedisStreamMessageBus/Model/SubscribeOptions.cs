@@ -17,11 +17,11 @@ namespace Aix.RedisStreamMessageBus.Model
         /// <summary>
         /// 消费者线程数 默认取全局配置
         /// </summary>
-        public int ConsumerThreadCount { get; set; }
+        // public int ConsumerThreadCount { get; set; }
 
         /// <summary>
-        /// 默认 0-0
+        ///  0-0  $ 默认 $
         /// </summary>
-       public  string GroupPosition { get; set; }
+        public string GroupPosition { get; set; }
     }
 }

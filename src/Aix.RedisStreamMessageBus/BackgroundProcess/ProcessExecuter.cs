@@ -31,7 +31,7 @@ namespace Aix.RedisStreamMessageBus.BackgroundProcess
 
         public Task AddProcess(IBackgroundProcess backgroundProcess, string name)
         {
-            _logger.LogInformation($"开启后台任务：{name}");
+            _logger.LogInformation($"{name}");
             _backgroundProcesses.Add(backgroundProcess);
 
             Task.Factory.StartNew(() => RunProcess(backgroundProcess), TaskCreationOptions.LongRunning);
@@ -65,13 +65,14 @@ namespace Aix.RedisStreamMessageBus.BackgroundProcess
                 }
                 catch (RedisException ex)
                 {
-                    _logger.LogError(ex, "redis错误");
+                    _logger.LogError(ex, "RedisMessageBus错误");
                     await TaskEx.DelayNoException(TimeSpan.FromSeconds(10), _backgroundProcessContext.CancellationToken);
                 }
                 catch (Exception ex)
                 {
-                    string errorMsg = $"执行任务{process.GetType().FullName}异常";
+                    string errorMsg = $"RedisMessageBus执行任务{process.GetType().FullName}异常，暂停1秒";
                     _logger.LogError(ex, errorMsg);
+                    await TaskEx.DelayNoException(TimeSpan.FromSeconds(1), _backgroundProcessContext.CancellationToken);
                 }
 
             }

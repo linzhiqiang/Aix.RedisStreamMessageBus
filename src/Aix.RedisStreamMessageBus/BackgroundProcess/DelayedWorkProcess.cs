@@ -43,7 +43,7 @@ namespace Aix.RedisStreamMessageBus.BackgroundProcess
         public void Dispose()
         {
             _isStart = false;
-            _logger.LogInformation("关闭后台任务：redis延迟任务处理");
+            _logger.LogInformation("RedisMessageBus延迟任务已结束......");
         }
 
         public async Task Execute(BackgroundProcessContext context)
@@ -75,7 +75,7 @@ namespace Aix.RedisStreamMessageBus.BackgroundProcess
                     }
                     catch (Exception ex)
                     {
-                        _logger.LogError(ex, $"redis解析延迟任务数据报错");
+                        _logger.LogError(ex, $"RedisMessageBus解析延迟任务数据报错");
                     }
 
                     if (jobData != null)
@@ -84,7 +84,7 @@ namespace Aix.RedisStreamMessageBus.BackgroundProcess
                     }
                     else
                     {
-                        _logger.LogError("延迟任务解析出错为空，这里就从hash中删除了");
+                        _logger.LogError("RedisMessageBus延迟任务解析出错为空，这里就从hash中删除了");
                         await _redisStorage.RemoveNullDealyJob(jobId);
                     }
                 }

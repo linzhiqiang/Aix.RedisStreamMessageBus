@@ -54,12 +54,12 @@ namespace Aix.RedisStreamMessageBus.Sample.HostedService
                     {
                         var messageData = new BusinessMessage
                         {
-                            MessageId = i.ToString(),
+                            MessageId =i.ToString(),
                             Content = $"我是内容_{i}",
                             CreateTime = DateTime.Now
                         };
                         await _messageBus.PublishAsync(messageData);
-                        //await _messageBus.PublishDelayAsync(messageData,TimeSpan.FromSeconds(2));
+                        //await _messageBus.PublishDelayAsync(messageData,TimeSpan.FromSeconds(60));
                         _logger.LogInformation($"{DateTime.Now.ToString("yyyy-MM-dd HH:mm:ss fff")}生产数据：MessageId={messageData.MessageId}");
                         //await Task.Delay(5);
                     }

@@ -57,9 +57,9 @@ namespace Aix.RedisStreamMessageBus
         public int TaskExecutorMaxTaskCount { get; set; } = 1000;
 
         /// <summary>
-        /// 每次拉去多少条
+        /// 每次拉去多少条 默认100条
         /// </summary>
-        public int PerBatchPullCount { get; set; } = 10;
+        public int PerBatchPullCount { get; set; } = 100;
 
         /// <summary>
         ///  消费者没数据时 间隔时间(没数据时) 默认100毫秒

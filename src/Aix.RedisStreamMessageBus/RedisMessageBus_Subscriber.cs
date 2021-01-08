@@ -60,7 +60,7 @@ namespace Aix.RedisStreamMessageBus
 
         public void Dispose()
         {
-            _logger.LogInformation("redis关闭消费者");
+            _logger.LogInformation("RedisMessageBus关闭消费者");
             _subscriber.UnsubscribeAll();
         }
 
