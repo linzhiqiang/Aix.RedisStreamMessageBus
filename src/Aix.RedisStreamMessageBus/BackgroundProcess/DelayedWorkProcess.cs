@@ -21,13 +21,15 @@ namespace Aix.RedisStreamMessageBus.BackgroundProcess
         private RedisMessageBusOptions _options;
         private RedisStorage _redisStorage;
         private int BatchCount = 100; //一次拉取多少条
-        private int PreReadSecond = 5; //提前读取多长数据
+        private int PreReadSecond = 10; //提前读取多长数据
         private volatile bool _isStart = true;
+        private string _delayTopicName;
 
         private TimeSpan lockTimeSpan = TimeSpan.FromMinutes(1);
-        public DelayedWorkProcess(IServiceProvider serviceProvider)
+        public DelayedWorkProcess(IServiceProvider serviceProvider,string delayTopicName)
         {
             _serviceProvider = serviceProvider;
+            _delayTopicName = delayTopicName;
             _logger = _serviceProvider.GetService<ILogger<DelayedWorkProcess>>();
             _options = _serviceProvider.GetService<RedisMessageBusOptions>();
             _redisStorage = _serviceProvider.GetService<RedisStorage>();
@@ -48,13 +50,14 @@ namespace Aix.RedisStreamMessageBus.BackgroundProcess
 
         public async Task Execute(BackgroundProcessContext context)
         {
-            var lockKey = $"{_options.TopicPrefix}delay:lock";
+            //var lockKey = $"{_options.TopicPrefix}delay:lock";
+            var lockKey = $"{_delayTopicName}:lock";
             long delay = 0; //毫秒
             await _redisStorage.Lock(lockKey, lockTimeSpan, async () =>
             {
                 var now = DateTime.Now;
                 var maxScore = DateUtils.GetTimeStamp(now);
-                var list = await _redisStorage.GetTopDueDealyJobId(maxScore + PreReadSecond * 1000, BatchCount); //多查询1秒的数据，便于精确控制延迟
+                var list = await _redisStorage.GetTopDueDealyJobId(_delayTopicName,maxScore + PreReadSecond * 1000, BatchCount); //多查询1秒的数据，便于精确控制延迟
                 foreach (var item in list)
                 {
                     if (context.IsShutdownRequested) return;
@@ -80,12 +83,12 @@ namespace Aix.RedisStreamMessageBus.BackgroundProcess
 
                     if (jobData != null)
                     {
-                        await _redisStorage.DueDealyJobEnqueue(jobData);
+                        await _redisStorage.DueDealyJobEnqueue(_delayTopicName,jobData);
                     }
                     else
                     {
                         _logger.LogError("RedisMessageBus延迟任务解析出错为空，这里就从hash中删除了");
-                        await _redisStorage.RemoveNullDealyJob(jobId);
+                        await _redisStorage.RemoveNullDealyJob(_delayTopicName,jobId);
                     }
                 }
 

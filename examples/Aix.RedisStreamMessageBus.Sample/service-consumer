@@ -1,0 +1,2 @@
+#!/usr/bin/bash
+dotnet Aix.RedisStreamMessageBus.Sample.dll -m 2

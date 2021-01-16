@@ -134,8 +134,11 @@ namespace Aix.RedisStreamMessageBus
 
             Task.Run(async () =>
             {
-                await _processExecuter.AddProcess(new DelayedWorkProcess(_serviceProvider), "RedisMessageBus延迟任务开始执行......");
-                //await _processExecuter.AddProcess(new ErrorWorkerProcess(_serviceProvider), "redis失败任务处理");
+                foreach (var item in Helper.GetDelayTopicList(this._options))
+                {
+                    await _processExecuter.AddProcess(new DelayedWorkProcess(_serviceProvider, item), "RedisMessageBus延迟任务开始执行......");
+                }
+               ////await _processExecuter.AddProcess(new ErrorWorkerProcess(_serviceProvider), "redis失败任务处理");
             });
         }
 

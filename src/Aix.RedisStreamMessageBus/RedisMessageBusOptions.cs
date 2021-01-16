@@ -9,7 +9,7 @@ namespace Aix.RedisStreamMessageBus
     {
         public static string DefaultGroupName = "default-group";
         public static string DefaultConsumerName = "consumer";
-        private int[] DefaultRetryStrategy = new int[] { 1, 5, 30, 60, 2 * 60, 5 * 60, 10 * 60 };
+        private int[] DefaultRetryStrategy = new int[] { 1, 5, 10, 30, 60, 2 * 60, 5 * 60, 10 * 60 };
         public RedisMessageBusOptions()
         {
             this.TopicPrefix = "dog:messagebus:";
@@ -49,7 +49,7 @@ namespace Aix.RedisStreamMessageBus
         /// <summary>
         /// 默认每个类型的消费线程数 默认2个
         /// </summary>
-        public int DefaultConsumerThreadCount { get; set; } = 2;
+        public int DefaultConsumerThreadCount { get; set; } = 4;
 
         /// <summary>
         /// 任务执行器中的最大任务数，超过该值就暂停拉去
@@ -78,9 +78,14 @@ namespace Aix.RedisStreamMessageBus
 
 
         /// <summary>
-        /// 延迟任务预处数据时间 内部有订阅延迟时间小于该值的任务，所以也支持小于该值的任务  默认5秒（不建议更小，可以更大）
+        /// 延迟队列数量 进行分区
         /// </summary>
-        public int DelayTaskPreReadSecond { get; set; } = 5;
+        public int DelayTopicCount { get; set; } = 1;
+
+        /// <summary>
+        /// 延迟任务预处数据时间 内部有订阅延迟时间小于该值的任务，所以也支持小于该值的任务  默认10秒（不建议更小，可以更大）
+        /// </summary>
+        public int DelayTaskPreReadSecond { get; set; } = 10;
 
         /// <summary>
         /// 最大错误重试次数 默认10次

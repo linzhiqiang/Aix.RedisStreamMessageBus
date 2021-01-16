@@ -103,14 +103,15 @@ namespace Aix.RedisStreamMessageBus.RedisImpl
             var trans = _database.CreateTransaction();
 #pragma warning disable CS4014
             trans.HashSetAsync(hashJobId, values.ToArray());
-            //trans.KeyExpireAsync(hashJobId, TimeSpan.FromDays(_options.DataExpireHour));
-            trans.SortedSetAddAsync(Helper.GetDelaySortedSetName(_options), jobData.JobId, DateUtils.GetTimeStamp(DateTime.Now.Add(delay))); //当前时间戳，
-            if (delay < TimeSpan.FromSeconds(_options.DelayTaskPreReadSecond))
-            {
-                trans.PublishAsync(_delayJobChannelSubscription.Channel, jobData.JobId);
-            }
+            // trans.SortedSetAddAsync(Helper.GetDelaySortedSetName(_options), jobData.JobId, DateUtils.GetTimeStamp(DateTime.Now.Add(delay))); //当前时间戳，
+            trans.SortedSetAddAsync(Helper.GetDelayTopic(_options, jobData.JobId), jobData.JobId, DateUtils.GetTimeStamp(DateTime.Now.Add(delay))); //当前时间戳，
 #pragma warning restore CS4014
             var result = await trans.ExecuteAsync();
+
+            if (delay < TimeSpan.FromSeconds(_options.DelayTaskPreReadSecond))
+            {
+                await _database.PublishAsync(_delayJobChannelSubscription.Channel, jobData.JobId);
+            }
 
             return result;
         }
@@ -121,10 +122,11 @@ namespace Aix.RedisStreamMessageBus.RedisImpl
         /// <param name="timeStamp"></param>
         /// <param name="count"></param>
         /// <returns></returns>
-        public Task<IDictionary<string, long>> GetTopDueDealyJobId(long timeStamp, int count)
+        public Task<IDictionary<string, long>> GetTopDueDealyJobId(string delayTopicName, long timeStamp, int count)
         {
             var nowTimeStamp = timeStamp;
-            var result = _database.SortedSetRangeByScoreWithScores(Helper.GetDelaySortedSetName(_options), double.NegativeInfinity, nowTimeStamp, Exclude.None, Order.Ascending, 0, count);
+            // var result = _database.SortedSetRangeByScoreWithScores(Helper.GetDelaySortedSetName(_options), double.NegativeInfinity, nowTimeStamp, Exclude.None, Order.Ascending, 0, count);
+            var result = _database.SortedSetRangeByScoreWithScores(delayTopicName, double.NegativeInfinity, nowTimeStamp, Exclude.None, Order.Ascending, 0, count);
             IDictionary<string, long> dict = new Dictionary<string, long>();
             foreach (SortedSetEntry item in result)
             {
@@ -139,14 +141,15 @@ namespace Aix.RedisStreamMessageBus.RedisImpl
         /// </summary>
         /// <param name="jobId"></param>
         /// <returns></returns>
-        public async Task<bool> DueDealyJobEnqueue(JobData jobData)
+        public async Task<bool> DueDealyJobEnqueue(string delayTopicName, JobData jobData)
         {
             var jobId = jobData.JobId;
 
             var trans = _database.CreateTransaction();
 #pragma warning disable CS4014
             StreamAddTransaction(jobData, trans);
-            trans.SortedSetRemoveAsync(Helper.GetDelaySortedSetName(_options), jobId);
+            //trans.SortedSetRemoveAsync(Helper.GetDelaySortedSetName(_options), jobId);
+            trans.SortedSetRemoveAsync(delayTopicName, jobId);
             trans.KeyDeleteAsync(Helper.GetJobHashId(_options, jobId));
 #pragma warning restore CS4014
             var result = await trans.ExecuteAsync();
@@ -158,11 +161,12 @@ namespace Aix.RedisStreamMessageBus.RedisImpl
         /// </summary>
         /// <param name="jobId"></param>
         /// <returns></returns>
-        public async Task<bool> RemoveNullDealyJob(string jobId)
+        public async Task<bool> RemoveNullDealyJob(string delayTopicName, string jobId)
         {
             var trans = _database.CreateTransaction();
 #pragma warning disable CS4014
-            trans.SortedSetRemoveAsync(Helper.GetDelaySortedSetName(_options), jobId);
+            //trans.SortedSetRemoveAsync(Helper.GetDelaySortedSetName(_options), jobId);
+            trans.SortedSetRemoveAsync(delayTopicName, jobId);
             trans.KeyDeleteAsync(Helper.GetJobHashId(_options, jobId));
 #pragma warning restore CS4014
             var result = await trans.ExecuteAsync();

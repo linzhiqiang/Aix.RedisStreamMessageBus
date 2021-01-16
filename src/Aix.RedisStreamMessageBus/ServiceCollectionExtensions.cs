@@ -16,6 +16,9 @@ namespace Aix.RedisStreamMessageBus
     {
         public static IServiceCollection AddRedisMessageBus(this IServiceCollection services, RedisMessageBusOptions options)
         {
+            //验证
+            AssertUtils.IsTrue(options.DelayTopicCount >=1, "RedisMessageBus 参数DelayTopicCount配置错误");
+
             services.AddAddMultithreadExecutor(options.DefaultConsumerThreadCount);
             AddService(services, options);
             services.AddSingleton<IRedisMessageBus, RedisMessageBus>();
