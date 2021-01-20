@@ -43,7 +43,7 @@ namespace Aix.RedisStreamMessageBus
 
       
 
-        public Task SubscribeAsync<T>(Func<T, Task> handler, SubscribeOptions subscribeOptions = null, CancellationToken cancellationToken = default(CancellationToken)) where T : class
+        public Task SubscribeAsync<T>(Func<T, Task<bool>> handler, SubscribeOptions subscribeOptions = null, CancellationToken cancellationToken = default(CancellationToken)) where T : class
         {
             return _subscriber.SubscribeAsync(GetTopic(typeof(T)), (channel, value) =>
             {

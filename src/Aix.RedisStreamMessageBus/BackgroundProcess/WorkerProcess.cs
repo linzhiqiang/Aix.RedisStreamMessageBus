@@ -28,7 +28,7 @@ namespace Aix.RedisStreamMessageBus.BackgroundProcess
         private string _groupName;
         private string _consumerName;
 
-        public event Func<JobData, Task> OnMessage;
+        public event Func<JobData, Task<bool>> OnMessage;
         int BatchCount = 10; //一次拉取多少条  目前只能取一个，区多个会导致取回来没有执行的 空闲时间增加导致错误处理有问题
         private volatile bool _isStart = true;
         public WorkerProcess(IServiceProvider serviceProvider, string topic, string groupName, string consumerName)
@@ -169,16 +169,12 @@ namespace Aix.RedisStreamMessageBus.BackgroundProcess
             var isSuccess = true;
             try
             {
-                await OnMessage(jobData);
+                isSuccess = await OnMessage(jobData);
             }
             catch (Exception ex)
             {
                 _logger.LogError(ex, $"RedisMessageBus消费失败,topic:{jobData.Topic}");
-                if (RedisMessageBusOptions.IsRetry != null)
-                {
-                    var isRetry = await RedisMessageBusOptions.IsRetry(ex);
-                    isSuccess = !isRetry;
-                }
+                isSuccess = false;
             }
             return isSuccess;
         }

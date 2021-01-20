@@ -47,7 +47,7 @@ namespace Aix.RedisStreamMessageBus
         static int DelayTaskIndex = 0;
         public static string GetDelayTopic(RedisMessageBusOptions options, string key = null)
         {
-            var count = Interlocked.Increment(ref DelayTaskIndex);
+            var count = Math.Abs(Interlocked.Increment(ref DelayTaskIndex));
             var result = GetDelayTopicList(options);
             if (string.IsNullOrEmpty(key))
             {

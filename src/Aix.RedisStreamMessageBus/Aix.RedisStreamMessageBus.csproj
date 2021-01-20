@@ -4,10 +4,11 @@
     <TargetFramework>netstandard2.0</TargetFramework>
     <AssemblyName>Aix.RedisStreamMessageBus</AssemblyName>
     <GeneratePackageOnBuild>true</GeneratePackageOnBuild>
-    <Version>1.0.10</Version>
+    <Version>1.0.11</Version>
     <Description>redis版即时任务(stream)和延迟任务(zset)</Description>
     <PackageReleaseNotes>拉去数据后交由本地多线程执行器执行</PackageReleaseNotes>
-    <AssemblyVersion>1.0.10.0</AssemblyVersion>
+    <AssemblyVersion>1.0.11.0</AssemblyVersion>
+    <FileVersion>1.0.11.0</FileVersion>
   </PropertyGroup>
 
   <ItemGroup>

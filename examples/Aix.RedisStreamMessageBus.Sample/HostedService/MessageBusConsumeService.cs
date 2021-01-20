@@ -41,22 +41,38 @@ namespace Aix.RedisStreamMessageBus.Sample.HostedService
         {
             try
             {
-                await _messageBus.SubscribeAsync<BusinessMessage>(async (message) =>
-                {
-                    var current = Interlocked.Increment(ref Count);
-
-                    _logger.LogInformation($"{DateTime.Now.ToString("yyyy-MM-dd HH:mm:ss fff")}消费--1--数据：MessageId={message.MessageId},Content={message.Content},count={current}");
-                    // await Task.Delay(10);
-                    //throw new System.ArgumentException("333");
-                    // throw new BizException(1,"不重试");
-                    //throw new Exception("重试异常");
-                    await Task.CompletedTask;
-                }, null, cancellationToken);
+                await _messageBus.SubscribeAsync<BusinessMessage>(Consumer, null, cancellationToken);
             }
             catch (Exception ex)
             {
                 _logger.LogError(ex, "");
             }
+        }
+
+        private async Task<bool> Consumer(BusinessMessage message)
+        {
+            var result = true;
+            try
+            {
+                var current = Interlocked.Increment(ref Count);
+
+                _logger.LogInformation($"{DateTime.Now.ToString("yyyy-MM-dd HH:mm:ss fff")}消费--1--数据：MessageId={message.MessageId},Content={message.Content},count={current}");
+                // await Task.Delay(10);
+                //throw new System.ArgumentException("333");
+                // throw new BizException(1,"不重试");
+                //throw new Exception("重试异常");
+                await Task.CompletedTask;
+            }
+            catch (BizException ex)
+            {
+                result =  true;
+            }
+            catch (Exception ex)
+            {
+                result = false;
+            }
+
+            return result;
         }
 
         private async Task SubscribeWithOptions(CancellationToken cancellationToken)
@@ -68,18 +84,38 @@ namespace Aix.RedisStreamMessageBus.Sample.HostedService
                 //subscribeOptions.ConsumerThreadCount = 2;
                 subscribeOptions.GroupId = "g";
 
-                await _messageBus.SubscribeAsync<BusinessMessage>(async (message) =>
-                {
-                    var current = Interlocked.Increment(ref Count);
-                    _logger.LogInformation($"{DateTime.Now.ToString("yyyy-MM-dd HH:mm:ss fff")}消费--2--数据：MessageId={message.MessageId},Content={message.Content},count={current}");
-                    // await Task.Delay(100);
-                    await Task.CompletedTask;
-                }, subscribeOptions, cancellationToken);
+                await _messageBus.SubscribeAsync<BusinessMessage>(Consumer2, subscribeOptions, cancellationToken);
             }
             catch (Exception ex)
             {
                 _logger.LogError(ex, "");
             }
+        }
+
+        private async Task<bool> Consumer2(BusinessMessage message)
+        {
+            var result = true;
+            try
+            {
+                var current = Interlocked.Increment(ref Count);
+
+                _logger.LogInformation($"{DateTime.Now.ToString("yyyy-MM-dd HH:mm:ss fff")}消费--2--数据：MessageId={message.MessageId},Content={message.Content},count={current}");
+                // await Task.Delay(10);
+                //throw new System.ArgumentException("333");
+                // throw new BizException(1,"不重试");
+                //throw new Exception("重试异常");
+                await Task.CompletedTask;
+            }
+            catch (BizException ex)
+            {
+                result = true;
+            }
+            catch (Exception ex)
+            {
+                result = false;
+            }
+
+            return result;
         }
     }
 }

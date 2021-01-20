@@ -12,7 +12,7 @@ namespace Aix.RedisStreamMessageBus
         private int[] DefaultRetryStrategy = new int[] { 1, 5, 10, 30, 60, 2 * 60, 5 * 60, 10 * 60 };
         public RedisMessageBusOptions()
         {
-            this.TopicPrefix = "dog:messagebus:";
+            this.TopicPrefix = "aixmessagebus:";
             this.Serializer = MessagePackSerializerImpl.Serializer;
         }
 
@@ -102,13 +102,6 @@ namespace Aix.RedisStreamMessageBus
             if (RetryStrategy == null || RetryStrategy.Length == 0) return DefaultRetryStrategy;
             return RetryStrategy;
         }
-
-        /// <summary>
-        /// 是否为重试异常
-        /// </summary>
-        public static Func<Exception, Task<bool>> IsRetry { get; set; }
-
-
 
     }
 

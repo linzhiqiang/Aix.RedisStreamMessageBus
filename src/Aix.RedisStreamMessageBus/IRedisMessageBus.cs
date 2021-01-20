@@ -31,11 +31,11 @@ namespace Aix.RedisStreamMessageBus
         /// 订阅消息 
         /// </summary>
         /// <typeparam name="T"></typeparam>
-        /// <param name="handler"></param>
-        /// <param name="context"></param>
+        /// <param name="handler">返回true 不进行重试，false 进行重试（根据配置重试指定次数）</param>
+        /// <param name="subscribeOptions"></param>
         /// <param name="cancellationToken"></param>
         /// <returns></returns>
-        Task SubscribeAsync<T>(Func<T, Task> handler, SubscribeOptions subscribeOptions = null, CancellationToken cancellationToken = default(CancellationToken)) where T : class;
+        Task SubscribeAsync<T>(Func<T, Task<bool>> handler, SubscribeOptions subscribeOptions = null, CancellationToken cancellationToken = default(CancellationToken)) where T : class;
 
     }
 }

@@ -64,7 +64,7 @@ namespace Aix.RedisStreamMessageBus
             AssertUtils.IsTrue(result, $"RedisMessageBus生产者数据失败,topic:{topic}");
         }
 
-        public async Task SubscribeAsync<T>(Func<T, Task> handler, SubscribeOptions subscribeOptions = null, CancellationToken cancellationToken = default) where T : class
+        public async Task SubscribeAsync<T>(Func<T, Task<bool>> handler, SubscribeOptions subscribeOptions = null, CancellationToken cancellationToken = default) where T : class
         {
             InitProcess();
             string topic = GetTopic(typeof(T));
@@ -81,10 +81,10 @@ namespace Aix.RedisStreamMessageBus
 #pragma warning disable CS4014
             Task.Run(async () =>
             {
-                Func<JobData, Task> action = async message =>
+                Func<JobData, Task<bool>> action = async message =>
                 {
                     var realObj = _options.Serializer.Deserialize<T>(message.Data);
-                    await handler(realObj);
+                    return await handler(realObj);
                 };
                 //先处理当前消费者组中的pel数据 上次重启没有执行完成的 一台机器一个consumerName
                 var consumerName = GetConsumerName();
@@ -138,7 +138,7 @@ namespace Aix.RedisStreamMessageBus
                 {
                     await _processExecuter.AddProcess(new DelayedWorkProcess(_serviceProvider, item), "RedisMessageBus延迟任务开始执行......");
                 }
-               ////await _processExecuter.AddProcess(new ErrorWorkerProcess(_serviceProvider), "redis失败任务处理");
+                ////await _processExecuter.AddProcess(new ErrorWorkerProcess(_serviceProvider), "redis失败任务处理");
             });
         }
 
