@@ -5,11 +5,25 @@ using System.Threading.Tasks;
 
 namespace Aix.RedisStreamMessageBus
 {
+    /// <summary>
+    /// 配置类
+    /// </summary>
     public class RedisMessageBusOptions
     {
+        /// <summary>
+        /// 
+        /// </summary>
         public static string DefaultGroupName = "default-group";
+
+        /// <summary>
+        /// 
+        /// </summary>
         public static string DefaultConsumerName = "consumer";
         private int[] DefaultRetryStrategy = new int[] { 1, 5, 10, 30, 60, 2 * 60, 5 * 60, 10 * 60 };
+        
+        /// <summary>
+        /// 
+        /// </summary>
         public RedisMessageBusOptions()
         {
             this.TopicPrefix = "aixmessagebus:";
@@ -42,12 +56,18 @@ namespace Aix.RedisStreamMessageBus
         /// </summary>
         public int StreamMaxLength { get; set; } = 1000000;
 
+        /// <summary>
+        /// 自定义消费者名称
+        /// </summary>
         public string ConsumerName { get; set; } = "consumer";
 
+        /// <summary>
+        /// 消费者名称策略
+        /// </summary>
         public ConsumerNameType ConsumerNameType { get; set; } = ConsumerNameType.LocalIPPostfix;
 
         /// <summary>
-        /// 默认每个类型的消费线程数 默认2个
+        /// 消费者线程数 默认4个
         /// </summary>
         public int DefaultConsumerThreadCount { get; set; } = 4;
 
@@ -97,6 +117,10 @@ namespace Aix.RedisStreamMessageBus
         /// </summary>
         public int[] RetryStrategy { get; set; }
 
+        /// <summary>
+        /// GetRetryStrategy
+        /// </summary>
+        /// <returns></returns>
         public int[] GetRetryStrategy()
         {
             if (RetryStrategy == null || RetryStrategy.Length == 0) return DefaultRetryStrategy;
@@ -105,6 +129,9 @@ namespace Aix.RedisStreamMessageBus
 
     }
 
+    /// <summary>
+    /// 消费者名称策略
+    /// </summary>
     public enum ConsumerNameType
     {
 

@@ -166,7 +166,7 @@ namespace Aix.RedisStreamMessageBus
 
         private string CreateConsumerNameByIP()
         {
-            return $"{RedisMessageBusOptions.DefaultConsumerName}_{IPUtils.IPToInt(IPUtils.GetLocalIP())}"; ;
+            return $"{RedisMessageBusOptions.DefaultConsumerName}_{IPUtils.IPToInt(IPUtils.GetLocalIP())}"; 
         }
 
         #endregion

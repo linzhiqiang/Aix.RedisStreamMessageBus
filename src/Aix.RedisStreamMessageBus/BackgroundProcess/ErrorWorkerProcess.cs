@@ -12,6 +12,9 @@ using Aix.RedisStreamMessageBus.Foundation;
 
 namespace Aix.RedisStreamMessageBus.BackgroundProcess
 {
+    /// <summary>
+    /// 暂时没用
+    /// </summary>
     internal class ErrorWorkerProcess : IBackgroundProcess
     {
         private IServiceProvider _serviceProvider;

@@ -1,0 +1,432 @@
+<?xml version="1.0"?>
+<doc>
+    <assembly>
+        <name>Aix.RedisStreamMessageBus</name>
+    </assembly>
+    <members>
+        <member name="P:Aix.RedisStreamMessageBus.BackgroundProcessContext.SubscriberTopics">
+            <summary>
+            订阅topic列表
+            </summary>
+        </member>
+        <member name="T:Aix.RedisStreamMessageBus.BackgroundProcess.DelayedWorkProcess">
+            <summary>
+            延迟任务处理
+            </summary>
+        </member>
+        <member name="T:Aix.RedisStreamMessageBus.BackgroundProcess.ErrorWorkerProcess">
+            <summary>
+            暂时没用
+            </summary>
+        </member>
+        <member name="T:Aix.RedisStreamMessageBus.BackgroundProcess.ProcessExecuter">
+            <summary>
+            循环任务执行器
+            </summary>
+        </member>
+        <member name="M:Aix.RedisStreamMessageBus.BackgroundProcess.WorkerProcess.ProcessPel(Aix.RedisStreamMessageBus.BackgroundProcessContext)">
+            <summary>
+            服务启动时先处理pel中的数据（上次服务结束时拉去到但是未执行的数据/未ack）
+            </summary>
+            <param name="context"></param>
+            <returns></returns>
+        </member>
+        <member name="M:Aix.RedisStreamMessageBus.BackgroundProcess.WorkerProcess.ProcessList(StackExchange.Redis.StreamEntry[],System.Boolean)">
+            <summary>
+            
+            </summary>
+            <param name="list"></param>
+            <param name="asyncExecute">是否异步执行</param>
+            <returns></returns>
+        </member>
+        <member name="M:Aix.RedisStreamMessageBus.Foundation.TaskEx.DelayNoException(System.TimeSpan,System.Threading.CancellationToken)">
+            <summary>
+            无异常延迟
+            </summary>
+            <param name="delay"></param>
+            <param name="cancellationToken"></param>
+            <returns></returns>
+        </member>
+        <member name="M:Aix.RedisStreamMessageBus.Foundation.TaskEx.DelayNoException(System.Int32,System.Threading.CancellationToken)">
+            <summary>
+            无异常延迟
+            </summary>
+            <param name="millisecondsDelay"></param>
+            <param name="cancellationToken"></param>
+            <returns></returns>
+        </member>
+        <member name="F:Aix.RedisStreamMessageBus.Helper.TopicCache">
+            <summary>
+            topic缓存
+            </summary>
+        </member>
+        <member name="F:Aix.RedisStreamMessageBus.Helper.RouteKeyCache">
+            <summary>
+            RouteKey缓存
+            </summary>
+        </member>
+        <member name="M:Aix.RedisStreamMessageBus.IRedisMessageBus.PublishAsync(System.Type,System.Object)">
+            <summary>
+            发布消息
+            </summary>
+            <param name="messageType"></param>
+            <param name="message"></param>
+            <returns></returns>
+        </member>
+        <member name="M:Aix.RedisStreamMessageBus.IRedisMessageBus.PublishDelayAsync(System.Type,System.Object,System.TimeSpan)">
+            <summary>
+            发布延迟消息
+            </summary>
+            <param name="messageType"></param>
+            <param name="message"></param>
+            <param name="delay"></param>
+            <returns></returns>
+        </member>
+        <member name="M:Aix.RedisStreamMessageBus.IRedisMessageBus.SubscribeAsync``1(System.Func{``0,System.Threading.Tasks.Task{System.Boolean}},Aix.RedisStreamMessageBus.Model.SubscribeOptions,System.Threading.CancellationToken)">
+            <summary>
+            订阅消息 
+            </summary>
+            <typeparam name="T"></typeparam>
+            <param name="handler">返回true 不进行重试，false 进行重试（根据配置重试指定次数）</param>
+            <param name="subscribeOptions"></param>
+            <param name="cancellationToken"></param>
+            <returns></returns>
+        </member>
+        <member name="P:Aix.RedisStreamMessageBus.Model.JobData.Data">
+            <summary>
+            业务数据
+            </summary>
+        </member>
+        <member name="P:Aix.RedisStreamMessageBus.Model.JobData.RouteKey">
+            <summary>
+            路由key
+            </summary>
+        </member>
+        <member name="P:Aix.RedisStreamMessageBus.Model.JobData.ErrorGroup">
+            <summary>
+            当前消费失败所在组 消费是如果是失败的企鹅该值有值，只允许组一样的消费组消费
+            </summary>
+        </member>
+        <member name="T:Aix.RedisStreamMessageBus.Model.SubscribeOptions">
+            <summary>
+            单个订阅的配置，针对当前订阅有效
+            </summary>
+        </member>
+        <member name="P:Aix.RedisStreamMessageBus.Model.SubscribeOptions.GroupId">
+            <summary>
+            分组 默认取全局配置
+            </summary>
+        </member>
+        <member name="P:Aix.RedisStreamMessageBus.Model.SubscribeOptions.GroupPosition">
+            <summary>
+             0-0  $ 默认 $
+            </summary>
+        </member>
+        <member name="P:Aix.RedisStreamMessageBus.Model.TopicAttribute.Name">
+            <summary>
+            Topic
+            </summary>
+        </member>
+        <member name="T:Aix.RedisStreamMessageBus.RedisImpl.RedisStorage">
+            <summary>
+            
+            </summary>
+        </member>
+        <member name="M:Aix.RedisStreamMessageBus.RedisImpl.RedisStorage.EnqueueDealy(Aix.RedisStreamMessageBus.Model.JobData,System.TimeSpan)">
+            <summary>
+            延时任务
+            </summary>
+            <param name="jobData"></param>
+            <param name="delay"></param>
+            <returns></returns>
+        </member>
+        <member name="M:Aix.RedisStreamMessageBus.RedisImpl.RedisStorage.GetTopDueDealyJobId(System.String,System.Int64,System.Int32)">
+            <summary>
+            查询到期的延迟任务
+            </summary>
+            <param name="delayTopicName"></param>
+            <param name="timeStamp"></param>
+            <param name="count"></param>
+            <returns></returns>
+        </member>
+        <member name="M:Aix.RedisStreamMessageBus.RedisImpl.RedisStorage.DueDealyJobEnqueue(System.String,Aix.RedisStreamMessageBus.Model.JobData)">
+            <summary>
+            到期的延迟任务
+            </summary>
+            <param name="delayTopicName"></param>
+            <param name="jobData"></param>
+            <returns></returns>
+        </member>
+        <member name="M:Aix.RedisStreamMessageBus.RedisImpl.RedisStorage.RemoveNullDealyJob(System.String,System.String)">
+            <summary>
+            删除数据为空的 延迟任务数据  一般不会有这种情况的
+            </summary>
+            <param name="delayTopicName"></param>
+            <param name="jobId"></param>
+            <returns></returns>
+        </member>
+        <member name="M:Aix.RedisStreamMessageBus.RedisImpl.RedisStorage.LockTake(System.String,System.String,System.TimeSpan)">
+            <summary>
+            获取一个锁
+            </summary>
+            <param name="key"></param>
+            <param name="token"></param>
+            <param name="expiry"></param>
+            <returns></returns>
+        </member>
+        <member name="M:Aix.RedisStreamMessageBus.RedisImpl.RedisStorage.LockRelease(System.String,System.String)">
+            <summary>
+            释放一个锁(需要token匹配)
+            </summary>
+            <param name="key"></param>
+            <param name="token"></param>
+            <returns></returns>
+        </member>
+        <member name="M:Aix.RedisStreamMessageBus.RedisMessageBus.InitProcess">
+            <summary>
+            只有消费端才启动这些
+            </summary>
+        </member>
+        <member name="T:Aix.RedisStreamMessageBus.RedisMessageBusOptions">
+            <summary>
+            配置类
+            </summary>
+        </member>
+        <member name="F:Aix.RedisStreamMessageBus.RedisMessageBusOptions.DefaultGroupName">
+            <summary>
+            
+            </summary>
+        </member>
+        <member name="F:Aix.RedisStreamMessageBus.RedisMessageBusOptions.DefaultConsumerName">
+            <summary>
+            
+            </summary>
+        </member>
+        <member name="M:Aix.RedisStreamMessageBus.RedisMessageBusOptions.#ctor">
+            <summary>
+            
+            </summary>
+        </member>
+        <member name="P:Aix.RedisStreamMessageBus.RedisMessageBusOptions.ConnectionString">
+            <summary>
+            RedisConnectionString和ConnectionMultiplexer传一个即可
+            </summary>
+        </member>
+        <member name="P:Aix.RedisStreamMessageBus.RedisMessageBusOptions.ConnectionMultiplexer">
+            <summary>
+             RedisConnectionString和ConnectionMultiplexer传一个即可
+            </summary>
+        </member>
+        <member name="P:Aix.RedisStreamMessageBus.RedisMessageBusOptions.TopicPrefix">
+            <summary>
+            topic前缀，为了防止重复，建议用项目名称
+            </summary>
+        </member>
+        <member name="P:Aix.RedisStreamMessageBus.RedisMessageBusOptions.Serializer">
+            <summary>
+            自定义序列化，默认为MessagePack
+            </summary>
+        </member>
+        <member name="P:Aix.RedisStreamMessageBus.RedisMessageBusOptions.StreamMaxLength">
+            <summary>
+            stream大小 默认一百万
+            </summary>
+        </member>
+        <member name="P:Aix.RedisStreamMessageBus.RedisMessageBusOptions.ConsumerName">
+            <summary>
+            自定义消费者名称
+            </summary>
+        </member>
+        <member name="P:Aix.RedisStreamMessageBus.RedisMessageBusOptions.ConsumerNameType">
+            <summary>
+            消费者名称策略
+            </summary>
+        </member>
+        <member name="P:Aix.RedisStreamMessageBus.RedisMessageBusOptions.DefaultConsumerThreadCount">
+            <summary>
+            消费者线程数 默认4个
+            </summary>
+        </member>
+        <member name="P:Aix.RedisStreamMessageBus.RedisMessageBusOptions.TaskExecutorMaxTaskCount">
+            <summary>
+            任务执行器中的最大任务数，超过该值就暂停拉去
+            </summary>
+        </member>
+        <member name="P:Aix.RedisStreamMessageBus.RedisMessageBusOptions.PerBatchPullCount">
+            <summary>
+            每次拉去多少条 默认100条
+            </summary>
+        </member>
+        <member name="P:Aix.RedisStreamMessageBus.RedisMessageBusOptions.ConsumePullIntervalMillisecond">
+            <summary>
+             消费者没数据时 间隔时间(没数据时) 默认100毫秒
+            </summary>
+        </member>
+        <member name="P:Aix.RedisStreamMessageBus.RedisMessageBusOptions.ExecuteTimeoutSecond">
+            <summary>
+            执行超时时间，超过该时间，任务存在被重新执行的风险 默认60秒
+            </summary>
+        </member>
+        <member name="P:Aix.RedisStreamMessageBus.RedisMessageBusOptions.DelayTopicCount">
+            <summary>
+            延迟队列数量 进行分区
+            </summary>
+        </member>
+        <member name="P:Aix.RedisStreamMessageBus.RedisMessageBusOptions.DelayTaskPreReadSecond">
+            <summary>
+            延迟任务预处数据时间 内部有订阅延迟时间小于该值的任务，所以也支持小于该值的任务  默认10秒（不建议更小，可以更大）
+            </summary>
+        </member>
+        <member name="P:Aix.RedisStreamMessageBus.RedisMessageBusOptions.MaxErrorReTryCount">
+            <summary>
+            最大错误重试次数 默认10次
+            </summary>
+        </member>
+        <member name="P:Aix.RedisStreamMessageBus.RedisMessageBusOptions.RetryStrategy">
+            <summary>
+            失败重试延迟策略 单位：秒 ,不要直接调用请调用GetRetryStrategy()  默认失败次数对应值延迟时间[ 1, 10, 30, 60, 2 * 60, 2 * 60, 2 * 60, 5 * 60, 5 * 60,10*60   ];
+            </summary>
+        </member>
+        <member name="M:Aix.RedisStreamMessageBus.RedisMessageBusOptions.GetRetryStrategy">
+            <summary>
+            GetRetryStrategy
+            </summary>
+            <returns></returns>
+        </member>
+        <member name="T:Aix.RedisStreamMessageBus.ConsumerNameType">
+            <summary>
+            消费者名称策略
+            </summary>
+        </member>
+        <member name="F:Aix.RedisStreamMessageBus.ConsumerNameType.LocalIPPostfix">
+            <summary>
+            本机ip作为后缀 分布式部署时采用 也是默认值
+            </summary>
+        </member>
+        <member name="F:Aix.RedisStreamMessageBus.ConsumerNameType.Default">
+            <summary>
+            常量 单机部署时采用
+            </summary>
+        </member>
+        <member name="F:Aix.RedisStreamMessageBus.ConsumerNameType.Custom">
+            <summary>
+            自定义 请配置ConsumerName
+            </summary>
+        </member>
+        <member name="T:Aix.RedisStreamMessageBus.RedisMessageBus_Subscriber">
+            <summary>
+            发布订阅实现
+            </summary>
+        </member>
+        <member name="F:Aix.RedisStreamMessageBus.Utils.DateUtils.Format">
+            <summary>
+            yyyy-MM-dd HH:mm:ss
+            </summary>
+        </member>
+        <member name="M:Aix.RedisStreamMessageBus.Utils.DateUtils.GetDayStartDate(System.DateTime)">
+            <summary>
+            计算日期所在天的开始时间
+            </summary>
+            <param name="date"></param>
+            <returns></returns>
+        </member>
+        <member name="M:Aix.RedisStreamMessageBus.Utils.DateUtils.GetDayEndDate(System.DateTime)">
+            <summary>
+            计算日期所在天的结束时间
+            </summary>
+            <param name="date"></param>
+            <returns></returns>
+        </member>
+        <member name="M:Aix.RedisStreamMessageBus.Utils.DateUtils.GetMonthStartDate(System.DateTime)">
+            <summary>
+            计算日期当前月初时间
+            </summary>
+            <param name="date"></param>
+            <returns></returns>
+        </member>
+        <member name="M:Aix.RedisStreamMessageBus.Utils.DateUtils.GetMonthEndDate(System.DateTime)">
+            <summary>
+            计算日期当前月末时间
+            </summary>
+            <param name="date"></param>
+            <returns></returns>
+        </member>
+        <member name="M:Aix.RedisStreamMessageBus.Utils.DateUtils.GetMondayDateTime(System.DateTime)">
+            <summary>
+            计算所在周的周一的日期
+            </summary>
+            <param name="date"></param>
+            <returns></returns>
+        </member>
+        <member name="M:Aix.RedisStreamMessageBus.Utils.DateUtils.GetSundayDateTime(System.DateTime)">
+            <summary>
+            计算所在周的周一的日期
+            </summary>
+            <param name="date"></param>
+            <returns></returns>
+        </member>
+        <member name="M:Aix.RedisStreamMessageBus.Utils.DateUtils.GetDayByDayOfWeek(System.DateTime,System.DayOfWeek,System.Boolean)">
+            <summary>
+            返回指定日期所在周中的某一天
+            </summary>
+            <param name="date">指定日期</param>
+            <param name="week">希望返回的周中的某一天</param>
+            <param name="isDayEnd">返回的天为一天的开始还是末尾，如果为true返回这天的23点59分59秒，如果为false返回这天的0点0分0秒</param>
+            <returns></returns>
+        </member>
+        <member name="M:Aix.RedisStreamMessageBus.Utils.DateUtils.TimeStampToDateTime(System.Int64)">
+            <summary>
+            转换utc时间戳
+            </summary>
+            <param name="timestamp">毫秒数</param>
+            <returns></returns>
+        </member>
+        <member name="M:Aix.RedisStreamMessageBus.Utils.DateUtils.GetCurrentWeek">
+            <summary>
+            获取当前周几   1,2,3,4,5,6,7
+            </summary>
+            <returns></returns>
+        </member>
+        <member name="M:Aix.RedisStreamMessageBus.Utils.IPUtils.GetLocalIP">
+            <summary>
+            获取本机ip
+            </summary>
+            <returns></returns>
+        </member>
+        <member name="M:Aix.RedisStreamMessageBus.Utils.NumberUtils.GetDecimalPlaces(System.Decimal)">
+            <summary>
+            获取小数位数
+            </summary>
+            <param name="val"></param>
+            <returns></returns>
+        </member>
+        <member name="M:Aix.RedisStreamMessageBus.Utils.NumberUtils.Round(System.Decimal,System.Int32)">
+            <summary>
+            保留几位小数
+            </summary>
+            <param name="value"></param>
+            <param name="decimals"></param>
+            <returns></returns>
+        </member>
+        <member name="M:Aix.RedisStreamMessageBus.Utils.With.ReTry(Microsoft.Extensions.Logging.ILogger,System.Func{System.Threading.Tasks.Task},System.String,System.Int32)">
+            <summary>
+            失败重试
+            </summary>
+            <param name="logger"></param>
+            <param name="action"></param>
+            <param name="operationName"></param>
+            <param name="reTryCount"></param>
+            <returns></returns>
+        </member>
+        <member name="M:Aix.RedisStreamMessageBus.Utils.With.ReTry``1(Microsoft.Extensions.Logging.ILogger,System.Func{System.Threading.Tasks.Task{``0}},System.String,System.Int32)">
+            <summary>
+            失败重试
+            </summary>
+            <param name="logger"></param>
+            <param name="action"></param>
+            <param name="operationName"></param>
+            <param name="reTryCount"></param>
+            <returns></returns>
+        </member>
+    </members>
+</doc>

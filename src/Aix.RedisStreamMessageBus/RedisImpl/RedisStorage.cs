@@ -11,6 +11,9 @@ using System.Threading.Tasks;
 
 namespace Aix.RedisStreamMessageBus.RedisImpl
 {
+    /// <summary>
+    /// 
+    /// </summary>
     public class RedisStorage
     {
         private IServiceProvider _serviceProvider;
@@ -92,8 +95,8 @@ namespace Aix.RedisStreamMessageBus.RedisImpl
         /// <summary>
         /// 延时任务
         /// </summary>
-        /// <param name="job"></param>
-        /// <param name="timeSpan"></param>
+        /// <param name="jobData"></param>
+        /// <param name="delay"></param>
         /// <returns></returns>
         public async Task<bool> EnqueueDealy(JobData jobData, TimeSpan delay)
         {
@@ -103,7 +106,6 @@ namespace Aix.RedisStreamMessageBus.RedisImpl
             var trans = _database.CreateTransaction();
 #pragma warning disable CS4014
             trans.HashSetAsync(hashJobId, values.ToArray());
-            // trans.SortedSetAddAsync(Helper.GetDelaySortedSetName(_options), jobData.JobId, DateUtils.GetTimeStamp(DateTime.Now.Add(delay))); //当前时间戳，
             trans.SortedSetAddAsync(Helper.GetDelayTopic(_options, jobData.JobId), jobData.JobId, DateUtils.GetTimeStamp(DateTime.Now.Add(delay))); //当前时间戳，
 #pragma warning restore CS4014
             var result = await trans.ExecuteAsync();
@@ -119,13 +121,13 @@ namespace Aix.RedisStreamMessageBus.RedisImpl
         /// <summary>
         /// 查询到期的延迟任务
         /// </summary>
+        /// <param name="delayTopicName"></param>
         /// <param name="timeStamp"></param>
         /// <param name="count"></param>
         /// <returns></returns>
         public Task<IDictionary<string, long>> GetTopDueDealyJobId(string delayTopicName, long timeStamp, int count)
         {
             var nowTimeStamp = timeStamp;
-            // var result = _database.SortedSetRangeByScoreWithScores(Helper.GetDelaySortedSetName(_options), double.NegativeInfinity, nowTimeStamp, Exclude.None, Order.Ascending, 0, count);
             var result = _database.SortedSetRangeByScoreWithScores(delayTopicName, double.NegativeInfinity, nowTimeStamp, Exclude.None, Order.Ascending, 0, count);
             IDictionary<string, long> dict = new Dictionary<string, long>();
             foreach (SortedSetEntry item in result)
@@ -137,9 +139,10 @@ namespace Aix.RedisStreamMessageBus.RedisImpl
 
 
         /// <summary>
-        /// 到期的延迟任务 插入及时任务
+        /// 到期的延迟任务
         /// </summary>
-        /// <param name="jobId"></param>
+        /// <param name="delayTopicName"></param>
+        /// <param name="jobData"></param>
         /// <returns></returns>
         public async Task<bool> DueDealyJobEnqueue(string delayTopicName, JobData jobData)
         {
@@ -159,6 +162,7 @@ namespace Aix.RedisStreamMessageBus.RedisImpl
         /// <summary>
         /// 删除数据为空的 延迟任务数据  一般不会有这种情况的
         /// </summary>
+        /// <param name="delayTopicName"></param>
         /// <param name="jobId"></param>
         /// <returns></returns>
         public async Task<bool> RemoveNullDealyJob(string delayTopicName, string jobId)
