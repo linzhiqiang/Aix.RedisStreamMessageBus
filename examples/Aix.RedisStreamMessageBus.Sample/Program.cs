@@ -23,23 +23,22 @@ namespace Aix.RedisStreamMessageBus.Sample
                 CreateHostBuilder(args).Build().Run();
             });
 
-           
+
         }
         public static IHostBuilder CreateHostBuilder(string[] args) =>
             Host.CreateDefaultBuilder(args)
             .ConfigureHostConfiguration(configurationBuilder =>
             {
-               
+
             })
            .ConfigureAppConfiguration((hostBulderContext, configurationBuilder) =>
            {
-              
+
            })
             .ConfigureLogging((hostBulderContext, loggingBuilder) =>
             {
-               
+
             })
-          
             .ConfigureServices(Startup.ConfigureServices);
     }
 }

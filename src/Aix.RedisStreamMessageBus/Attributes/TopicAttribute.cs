@@ -2,8 +2,11 @@
 using System.Collections.Generic;
 using System.Text;
 
-namespace Aix.RedisStreamMessageBus.Model
+namespace Aix.RedisStreamMessageBus
 {
+    /// <summary>
+    /// 配置topic名称 默认为typeof().Name
+    /// </summary>
     public class TopicAttribute : Attribute
     {
         /// <summary>
@@ -22,8 +25,5 @@ namespace Aix.RedisStreamMessageBus.Model
         }
     }
 
-    public class RouteKeyAttribute : Attribute
-    {
-
-    }
+   
 }

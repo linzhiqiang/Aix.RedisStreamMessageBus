@@ -4,11 +4,14 @@
     <TargetFramework>netstandard2.0</TargetFramework>
     <AssemblyName>Aix.RedisStreamMessageBus</AssemblyName>
     <GeneratePackageOnBuild>true</GeneratePackageOnBuild>
-    <Version>1.0.12</Version>
+    <Version>1.0.13</Version>
     <Description>redis版即时任务(stream)和延迟任务(zset)</Description>
-    <PackageReleaseNotes>拉取数据后交由本地多线程执行器执行，添加注释</PackageReleaseNotes>
-    <AssemblyVersion>1.0.12.0</AssemblyVersion>
-    <FileVersion>1.0.12.0</FileVersion>
+    <PackageReleaseNotes>删除messagepack组件，改为system.txt.json</PackageReleaseNotes>
+    <AssemblyVersion>1.0.13.0</AssemblyVersion>
+    <FileVersion>1.0.13.0</FileVersion>
+    <Authors>linzhiqiang</Authors>
+    <RepositoryUrl>https://github.com/linzhiqiang/Aix.RedisStreamMessageBus</RepositoryUrl>
+    <PackageRequireLicenseAcceptance>false</PackageRequireLicenseAcceptance>
   </PropertyGroup>
 
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|AnyCPU'">
@@ -17,10 +20,10 @@
 
   <ItemGroup>
     <PackageReference Include="Aix.MultithreadExecutor" Version="1.0.2" />
-    <PackageReference Include="MessagePack" Version="2.2.60" />
     <PackageReference Include="Microsoft.Extensions.DependencyInjection.Abstractions" Version="5.0.0" />
     <PackageReference Include="Microsoft.Extensions.Logging.Abstractions" Version="5.0.0" />
     <PackageReference Include="StackExchange.Redis" Version="2.2.4" />
+    <PackageReference Include="System.Text.Json" Version="5.0.1" />
   </ItemGroup>
 
 </Project>

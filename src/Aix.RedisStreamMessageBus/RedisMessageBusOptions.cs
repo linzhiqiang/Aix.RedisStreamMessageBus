@@ -27,7 +27,7 @@ namespace Aix.RedisStreamMessageBus
         public RedisMessageBusOptions()
         {
             this.TopicPrefix = "aixmessagebus:";
-            this.Serializer = MessagePackSerializerImpl.Serializer;
+            this.Serializer = SerializerFactory.Instance.GetSerializer();
         }
 
 

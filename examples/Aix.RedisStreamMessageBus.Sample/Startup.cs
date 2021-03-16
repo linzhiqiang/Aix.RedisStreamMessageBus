@@ -15,6 +15,10 @@ namespace Aix.RedisStreamMessageBus.Sample
     {
         internal static void ConfigureServices(HostBuilderContext context, IServiceCollection services)
         {
+            Console.WriteLine("*************************");
+            Console.WriteLine(context.HostingEnvironment.EnvironmentName);
+            Console.WriteLine("*************************");
+
             var options = CmdOptions.Options;
             services.AddSingleton(options);
 

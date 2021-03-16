@@ -4,6 +4,21 @@
         <name>Aix.RedisStreamMessageBus</name>
     </assembly>
     <members>
+        <member name="T:Aix.RedisStreamMessageBus.RouteKeyAttribute">
+            <summary>
+            路由键，相同的进入同一个线程处理
+            </summary>
+        </member>
+        <member name="T:Aix.RedisStreamMessageBus.TopicAttribute">
+            <summary>
+            配置topic名称 默认为typeof().Name
+            </summary>
+        </member>
+        <member name="P:Aix.RedisStreamMessageBus.TopicAttribute.Name">
+            <summary>
+            Topic
+            </summary>
+        </member>
         <member name="P:Aix.RedisStreamMessageBus.BackgroundProcessContext.SubscriberTopics">
             <summary>
             订阅topic列表
@@ -120,11 +135,6 @@
         <member name="P:Aix.RedisStreamMessageBus.Model.SubscribeOptions.GroupPosition">
             <summary>
              0-0  $ 默认 $
-            </summary>
-        </member>
-        <member name="P:Aix.RedisStreamMessageBus.Model.TopicAttribute.Name">
-            <summary>
-            Topic
             </summary>
         </member>
         <member name="T:Aix.RedisStreamMessageBus.RedisImpl.RedisStorage">

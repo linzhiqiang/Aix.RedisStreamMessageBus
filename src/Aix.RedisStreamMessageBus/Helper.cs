@@ -1,5 +1,4 @@
-﻿using Aix.RedisStreamMessageBus.Model;
-using Aix.RedisStreamMessageBus.Utils;
+﻿using Aix.RedisStreamMessageBus.Utils;
 using System;
 using System.Collections.Concurrent;
 using System.Collections.Generic;

@@ -58,7 +58,10 @@ namespace Aix.RedisStreamMessageBus.Sample.HostedService
                             Content = $"我是内容_{i}",
                             CreateTime = DateTime.Now
                         };
-                        //await _messageBus.PublishAsync(messageData);
+                        //即时任务发布
+                        await _messageBus.PublishAsync(messageData);
+
+                        //延迟任务发布
                         await _messageBus.PublishDelayAsync(messageData,TimeSpan.FromSeconds(5));
                         _logger.LogInformation($"{DateTime.Now.ToString("yyyy-MM-dd HH:mm:ss fff")}生产数据：MessageId={messageData.MessageId}");
                         //await Task.Delay(5);

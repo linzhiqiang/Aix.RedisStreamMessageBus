@@ -23,6 +23,7 @@ namespace Aix.RedisStreamMessageBus
 
         private volatile bool _isInit = false;
         private HashSet<string> Subscribers = new HashSet<string>();
+        private string IPValue = "";
 
         public RedisMessageBus(IServiceProvider serviceProvider, ILogger<RedisMessageBus> logger
             , RedisMessageBusOptions options
@@ -166,7 +167,13 @@ namespace Aix.RedisStreamMessageBus
 
         private string CreateConsumerNameByIP()
         {
-            return $"{RedisMessageBusOptions.DefaultConsumerName}_{IPUtils.IPToInt(IPUtils.GetLocalIP())}"; 
+            if (string.IsNullOrEmpty(IPValue))
+            {
+                IPValue = IPUtils.IPToInt(IPUtils.GetLocalIP()).ToString();
+                AssertUtils.IsNotEmpty(IPValue, "获取本机IP地址错误");
+            }
+
+            return $"{RedisMessageBusOptions.DefaultConsumerName}_{IPValue}";
         }
 
         #endregion
